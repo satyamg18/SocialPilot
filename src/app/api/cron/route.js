@@ -33,7 +33,7 @@ export async function GET(request) {
     }
 
     // Gather token info (only once per cron run)
-    const linkedinToken = await getToken('linkedin');
+    const facebookToken = await getToken('facebook');
     const instagramToken = await getToken('instagram');
 
     const results = [];
@@ -51,8 +51,8 @@ export async function GET(request) {
           text: post.written_content,
           imageUrl: post.image_path ? `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}${post.image_path}` : null,
           imagePath: post.image_path ? path.join(process.cwd(), 'public', post.image_path) : null,
-          linkedinToken: linkedinToken?.access_token || null,
-          authorUrn: linkedinToken ? `urn:li:person:${linkedinToken.user_id}` : null,
+          facebookToken: facebookToken?.access_token || null,
+          fbPageId: facebookToken?.user_id || null,
           instagramToken: instagramToken?.access_token || null,
           igUserId: instagramToken?.user_id || null,
         });
@@ -61,7 +61,7 @@ export async function GET(request) {
           await updatePost(post.id, {
             status: 'published',
             published_at: new Date().toISOString(),
-            linkedin_post_id: n8nResult.linkedinPostId || null,
+            facebook_post_id: n8nResult.facebookPostId || null,
             instagram_post_id: n8nResult.instagramPostId || null,
           });
           results.push({ id: post.id, status: 'success' });

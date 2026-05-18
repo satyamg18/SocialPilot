@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getPostById, updatePost, getToken } from '@/lib/db';
 import { smartPublish } from '@/lib/n8n';
-import { createLinkedInTextPost, createLinkedInImagePost } from '@/lib/platforms/linkedin';
+import { createFacebookTextPost, createFacebookImagePost } from '@/lib/platforms/facebook';
 import { createInstagramImagePost } from '@/lib/platforms/instagram';
 import path from 'path';
 
@@ -23,7 +23,7 @@ export async function POST(request) {
     }
 
     // Gather token info
-    const linkedinToken = await getToken('linkedin');
+    const facebookToken = await getToken('facebook');
     const instagramToken = await getToken('instagram');
 
     // Try n8n first
@@ -32,20 +32,20 @@ export async function POST(request) {
       text: post.written_content,
       imageUrl: post.image_path ? `${process.env.NEXT_PUBLIC_APP_URL}${post.image_path}` : null,
       imagePath: post.image_path ? path.join(process.cwd(), 'public', post.image_path) : null,
-      linkedinToken: linkedinToken?.access_token || null,
-      authorUrn: linkedinToken ? `urn:li:person:${linkedinToken.user_id}` : null,
+      facebookToken: facebookToken?.access_token || null,
+      fbPageId: facebookToken?.user_id || null,
       instagramToken: instagramToken?.access_token || null,
       igUserId: instagramToken?.user_id || null,
     });
 
     // If n8n handled it successfully
     if (n8nResult && !n8nResult.fallbackToDirect) {
-      const hasSuccess = n8nResult.results?.linkedin || n8nResult.results?.instagram;
+      const hasSuccess = n8nResult.results?.facebook || n8nResult.results?.instagram;
       const newStatus = hasSuccess ? 'published' : 'failed';
 
       await updatePost(postId, {
         status: newStatus,
-        linkedin_post_id: n8nResult.results?.linkedin?.postId || null,
+        facebook_post_id: n8nResult.results?.facebook?.postId || null,
         instagram_post_id: n8nResult.results?.instagram?.postId || null,
         published_at: hasSuccess ? new Date().toISOString() : null,
       });
@@ -60,32 +60,30 @@ export async function POST(request) {
 
     // === FALLBACK: Direct API calls ===
     console.log('[publish] Falling back to direct API calls');
-    const results = { linkedin: null, instagram: null };
+    const results = { facebook: null, instagram: null };
     const errors = [];
 
-    // Publish to LinkedIn
-    if (post.platform === 'linkedin' || post.platform === 'both') {
-      if (linkedinToken) {
+    // Publish to Facebook
+    if (post.platform === 'facebook' || post.platform === 'both') {
+      if (facebookToken) {
         try {
-          const authorUrn = `urn:li:person:${linkedinToken.user_id}`;
           let result;
-
           if (post.image_path) {
-            const imagePath = path.join(process.cwd(), 'public', post.image_path);
-            result = await createLinkedInImagePost(
-              linkedinToken.access_token, authorUrn, post.written_content, imagePath
+            const imageUrl = `${process.env.NEXT_PUBLIC_APP_URL}${post.image_path}`;
+            result = await createFacebookImagePost(
+              facebookToken.access_token, facebookToken.user_id, post.written_content, imageUrl
             );
           } else {
-            result = await createLinkedInTextPost(
-              linkedinToken.access_token, authorUrn, post.written_content
+            result = await createFacebookTextPost(
+              facebookToken.access_token, facebookToken.user_id, post.written_content
             );
           }
-          results.linkedin = result;
+          results.facebook = result;
         } catch (err) {
-          errors.push(`LinkedIn: ${err.message}`);
+          errors.push(`Facebook: ${err.message}`);
         }
       } else {
-        errors.push('LinkedIn: Not connected');
+        errors.push('Facebook: Not connected');
       }
     }
 
@@ -111,12 +109,12 @@ export async function POST(request) {
     }
 
     // Update post status
-    const hasSuccess = results.linkedin || results.instagram;
+    const hasSuccess = results.facebook || results.instagram;
     const newStatus = hasSuccess ? 'published' : 'failed';
 
     await updatePost(postId, {
       status: newStatus,
-      linkedin_post_id: results.linkedin?.postId || null,
+      facebook_post_id: results.facebook?.postId || null,
       instagram_post_id: results.instagram?.postId || null,
       published_at: hasSuccess ? new Date().toISOString() : null,
     });

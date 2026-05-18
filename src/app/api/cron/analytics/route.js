@@ -16,7 +16,7 @@ export async function GET(request) {
     }
 
     // 2. Gather token info
-    const linkedinToken = await getToken('linkedin');
+    const facebookToken = await getToken('facebook');
     const instagramToken = await getToken('instagram');
 
     let updatedCount = 0;
@@ -28,22 +28,19 @@ export async function GET(request) {
       let impressions = post.impressions || 0;
       let shares = post.shares || 0;
 
-      // Update LinkedIn Stats
-      if (post.linkedin_post_id && linkedinToken?.access_token) {
+      // Update Facebook Stats
+      if (post.facebook_post_id && facebookToken?.access_token) {
         try {
-          // Note: Standard user posts (urn:li:share:123) use the socialActions endpoint.
-          // Format: https://api.linkedin.com/v2/socialActions/{shareUrn}
-          const liRes = await fetch(`https://api.linkedin.com/v2/socialActions/${post.linkedin_post_id}`, {
-            headers: { 'Authorization': `Bearer ${linkedinToken.access_token}` }
-          });
+          const fbRes = await fetch(`https://graph.facebook.com/v19.0/${post.facebook_post_id}?fields=likes.summary(true),comments.summary(true),shares&access_token=${facebookToken.access_token}`);
           
-          if (liRes.ok) {
-            const liData = await liRes.json();
-            likes += (liData.likesSummary?.totalLikes || 0);
-            comments += (liData.commentsSummary?.totalFirstDegreeComments || 0);
+          if (fbRes.ok) {
+            const fbData = await fbRes.json();
+            likes += (fbData.likes?.summary?.total_count || 0);
+            comments += (fbData.comments?.summary?.total_count || 0);
+            shares += (fbData.shares?.count || 0);
           }
         } catch (e) {
-          console.warn(`Failed to fetch LinkedIn stats for post ${post.id}`);
+          console.warn(`Failed to fetch Facebook stats for post ${post.id}`);
         }
       }
 
@@ -64,7 +61,7 @@ export async function GET(request) {
 
       // If neither platform is fully connected/working during testing, let's inject some mock engagement 
       // just so the dashboard isn't completely empty for the user's demo!
-      if (!linkedinToken?.access_token && !instagramToken?.access_token) {
+      if (!facebookToken?.access_token && !instagramToken?.access_token) {
          // Fake growth over time based on ID and day
          likes = Math.floor(Math.random() * 50) + 10;
          comments = Math.floor(Math.random() * 10);

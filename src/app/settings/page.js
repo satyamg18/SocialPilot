@@ -8,7 +8,7 @@ function SettingsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const addToast = useToast();
-  const [connections, setConnections] = useState({ linkedin: false, instagram: false });
+  const [connections, setConnections] = useState({ facebook: false, instagram: false });
   const [config, setConfig] = useState({ hasGeminiKey: false, n8nEnabled: false });
   const [loading, setLoading] = useState(true);
 
@@ -60,30 +60,30 @@ function SettingsContent() {
         <div className="card-body">
           <h2 className="settings-heading">🔗 Platform Connections</h2>
 
-          {/* LinkedIn */}
-          <div className="settings-row" style={{ border: connections.linkedin ? '1px solid rgba(10, 102, 194, 0.3)' : '1px solid var(--border-subtle)' }}>
+          {/* Facebook */}
+          <div className="settings-row" style={{ border: connections.facebook ? '1px solid rgba(24, 119, 242, 0.3)' : '1px solid var(--border-subtle)' }}>
             <div className="flex items-center gap-3">
-              <div className="settings-icon-box" style={{ background: 'var(--linkedin-soft)' }}>💼</div>
+              <div className="settings-icon-box" style={{ background: 'rgba(24, 119, 242, 0.15)' }}>📘</div>
               <div>
-                <div className="settings-label">LinkedIn</div>
+                <div className="settings-label">Facebook</div>
                 <div className="text-sm text-muted">
-                  {connections.linkedin
-                    ? `Connected as ${connections.linkedinUser || 'user'}`
-                    : 'Not connected — Connect to publish posts to LinkedIn'}
+                  {connections.facebook
+                    ? `Connected as ${connections.facebookUser || 'page'}`
+                    : 'Not connected — Connect to publish posts to your Facebook Page'}
                 </div>
               </div>
             </div>
             <div>
-              {connections.linkedin ? (
+              {connections.facebook ? (
                 <span className="status-badge approved"><span className="status-dot"></span> Connected</span>
               ) : (
                 <a
                   className="btn btn-secondary"
-                  href="/api/auth/linkedin"
-                  id="btn-connect-linkedin"
+                  href="/api/auth/facebook"
+                  id="btn-connect-facebook"
                   style={{ textDecoration: 'none' }}
                 >
-                  Connect LinkedIn
+                  Connect Facebook
                 </a>
               )}
             </div>
@@ -160,12 +160,12 @@ function SettingsContent() {
 
             <div className="settings-key-row">
               <div>
-                <div className="text-sm" style={{ fontWeight: 600 }}>LINKEDIN_CLIENT_ID / SECRET</div>
-                <div className="text-xs text-muted">LinkedIn OAuth credentials</div>
+                <div className="text-sm" style={{ fontWeight: 600 }}>FACEBOOK_APP_ID / SECRET</div>
+                <div className="text-xs text-muted">Facebook OAuth credentials</div>
               </div>
-              <span className="status-badge draft">
+              <span className={`status-badge ${config.hasFacebookKeys ? 'approved' : 'draft'}`}>
                 <span className="status-dot"></span>
-                Check .env.local
+                {config.hasFacebookKeys ? 'Configured' : 'Check .Env.Local'}
               </span>
             </div>
 
@@ -174,9 +174,9 @@ function SettingsContent() {
                 <div className="text-sm" style={{ fontWeight: 600 }}>INSTAGRAM_APP_ID / SECRET</div>
                 <div className="text-xs text-muted">Meta/Instagram OAuth credentials</div>
               </div>
-              <span className="status-badge draft">
+              <span className={`status-badge ${config.hasInstagramKeys ? 'approved' : 'draft'}`}>
                 <span className="status-dot"></span>
-                Check .env.local
+                {config.hasInstagramKeys ? 'Configured' : 'Check .Env.Local'}
               </span>
             </div>
           </div>
@@ -198,10 +198,10 @@ function SettingsContent() {
             </div>
 
             <div className="settings-guide-step">
-              <h3 style={{ marginBottom: '8px', color: 'var(--linkedin-color)' }}>Step 2: LinkedIn Setup</h3>
-              <p className="text-sm text-muted">
-                Go to <a href="https://developer.linkedin.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-accent)' }}>LinkedIn Developer Portal</a> →
-                Create App → Enable "Share on LinkedIn" → Copy Client ID and Secret to <code className="settings-code">.env.local</code>
+              <h3 style={{ marginBottom: '8px', color: 'var(--facebook-color)' }}>Step 2: Facebook Setup</h3>
+              <p className="text-sm text-muted mb-4">
+                Go to <a href="https://developers.facebook.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-accent)' }}>Meta Developer Portal</a> →
+                Create App → Enable "Facebook Login for Business" → Copy App ID and App Secret to <code className="settings-code">.env.local</code>
               </p>
             </div>
 

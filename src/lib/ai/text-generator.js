@@ -1,7 +1,21 @@
-import { GoogleGenAI } from '@google/genai';
+import Groq from 'groq-sdk';
+
+function logTokenUsage(model, response) {
+  const usage = response?.usage;
+  if (!usage) {
+    console.log(`[token-usage] ${model}: usage not present in response`);
+    return;
+  }
+  const promptTokens = usage.prompt_tokens ?? 'n/a';
+  const candidateTokens = usage.completion_tokens ?? 'n/a';
+  const totalTokens = usage.total_tokens ?? 'n/a';
+  console.log(
+    `[token-usage] model=${model}  prompt=${promptTokens}  output=${candidateTokens}  total=${totalTokens}`
+  );
+}
 
 // Models to try in order — falls back if quota exhausted
-const TEXT_MODELS = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite'];
+const TEXT_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'];
 
 const SYSTEM_PROMPT = `You are a seasoned social media content writer for a professional organization. Your writing style is:
 
@@ -15,11 +29,12 @@ STRICT RULES — DO NOT:
 - Use these words/phrases: "harness", "revolutionize", "delve", "game-changer", "leverage", "synergy", "cutting-edge", "robust", "seamless", "empower", "elevate", "foster", "landscape", "paradigm", "unlock", "unleash", "dive in", "in today's world", "it's no secret that", "in conclusion"
 - Use excessive exclamation marks (max 1 per post)
 - Start with generic openers like "In today's fast-paced world..." or "Are you looking for..."
-- Use more than 2 emojis per LinkedIn post, or more than 5 per Instagram post
-- Write generic filler content — every sentence must add value
+- Use more than 2 emojis per Facebook post, or more than 5 per Instagram post
+- Use cringe, overly "hype" language (e.g., "crushing it", "synergy", "game-changer")
+- Write large blocks of unbroken text
 
-FORMAT GUIDELINES:
-- LinkedIn: Professional yet personable. Use line breaks for readability. Include 2-3 relevant hashtags at the end. Ideal length: 150-300 words.
+Tone instructions per platform:
+- Facebook: Conversational yet informative. Use line breaks for readability. Include 1-2 relevant hashtags at the end. Ideal length: 100-200 words.
 - Instagram: More casual and visual. Engaging first line (hook). Use relevant hashtags (5-10) at the end. Include a call-to-action. Ideal length: 80-200 words.
 
 IMPORTANT: Write like a real human who cares about their audience. Include specific details, not vague platitudes. Each post should feel like it was crafted with intention, not mass-produced.`;
@@ -35,22 +50,26 @@ async function callWithFastRetry(ai, models, requestFn, isPlan = false) {
   for (const model of models) {
     try {
       console.log(`Trying model: ${model}`);
-      return await requestFn(model);
+      const result = await requestFn(model);
+      logTokenUsage(model, result);
+      return result;
     } catch (error) {
       const errorStr = error?.message || String(error);
-      const isRateLimit = errorStr.includes('429') || errorStr.includes('RESOURCE_EXHAUSTED') || errorStr.includes('quota');
+      const isRateLimit = errorStr.includes('429') || errorStr.includes('RESOURCE_EXHAUSTED') || errorStr.includes('quota') || errorStr.includes('rate_limit');
+      console.error(`[Groq Fault - ${model}]:`, errorStr);
+      if (error.status) console.error(`[Groq Status]:`, error.status);
+
       errors.push(`${model}: ${isRateLimit ? 'rate limited' : errorStr.substring(0, 100)}`);
       console.log(`${model} failed: ${isRateLimit ? 'rate limited' : 'error'}, trying next...`);
 
       if (isRateLimit && models.indexOf(model) < models.length - 1) {
-        await sleep(2000); // Brief pause before next model
+        await sleep(2000);
       }
     }
   }
 
-  console.warn(`All GenAI models failed, returning MOCK DATA. Errors: ${errors.join(' | ')}`);
-  
-  // Return Mock Data so the app doesn't break for the user
+  console.warn(`All models failed, returning MOCK DATA. Errors: ${errors.join(' | ')}`);
+
   if (isPlan) {
     return {
       text: JSON.stringify([
@@ -60,42 +79,41 @@ async function callWithFastRetry(ai, models, requestFn, isPlan = false) {
           visual_gist: "Mock graphic showing a system alert."
         },
         {
-          day: 12, platform: "linkedin", title: "[MOCK] Industry Insights",
-          written_gist: "Mock insights. Please check your Gemini rate limits or configure billing.",
+          day: 12, platform: "facebook", title: "[MOCK] Community Update",
+          written_gist: "Mock insights. Please check your Groq API key in .env.local.",
           visual_gist: "Chart showing data."
         }
       ])
     };
   }
 
-  // Mock text for post composer
   return {
-    text: `=== LINKEDIN ===
+    text: `=== FACEBOOK ===
 [MOCK CONTENT - API LIMIT REACHED]
-We've hit the Gemini API rate limit! This is mock data so you can continue testing the UI and flow. 🚀
+We've hit the Groq API rate limit! This is mock data so you can continue testing the UI and flow. 🚀
 
 Always test with mock data if needed! #fallback #system
 === INSTAGRAM ===
 [MOCK CONTENT - API LIMIT REACHED]
-Hitting API limits? No problem! 😅 This mock data ensures you can keep evaluating the app's workflow and design. 
+Hitting API limits? No problem! 😅 This mock data ensures you can keep evaluating the app's workflow and design.
 
-Check your Google AI Studio plan to increase limits! 📸👇
+Check your Groq console for API key issues! 📸👇
 #mockdata #testing #socialmedia`
   };
 }
 
 export async function generateWrittenContent(gist, platform = 'both', tone = 'professional') {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not set. Please add it to .env.local');
+    throw new Error('GROQ_API_KEY is not set. Please add it to .env.local');
   }
 
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new Groq({ apiKey });
 
   const platformInstructions = {
-    linkedin: 'Write this as a LinkedIn post. Professional, insightful, with line breaks for readability. 2-3 hashtags at the end.',
+    facebook: 'Write this as a Facebook post. Engaging, conversational, with line breaks for readability. 1-2 hashtags at the end.',
     instagram: 'Write this as an Instagram caption. Engaging, visual language, with a hook in the first line. 5-10 hashtags at the end. Include a call-to-action.',
-    both: 'Write TWO versions — one for LinkedIn and one for Instagram. Clearly label each with "=== LINKEDIN ===" and "=== INSTAGRAM ===" headers. Adapt the tone and format for each platform.'
+    both: 'Write TWO versions — one for Facebook and one for Instagram. Clearly label each with "=== FACEBOOK ===" and "=== INSTAGRAM ===" headers. Adapt the tone and format for each platform.'
   };
 
   const toneMap = {
@@ -118,26 +136,26 @@ ${gist}
 Write the social media post now. Remember to sound human, authentic, and engaging — not robotic or generic.`;
 
   const response = await callWithFastRetry(ai, TEXT_MODELS, async (model) => {
-    return await ai.models.generateContent({
+    const completion = await ai.chat.completions.create({
       model,
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_PROMPT,
-        temperature: 0.85,
-        topP: 0.92,
-        maxOutputTokens: 1500,
-      }
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.85,
+      max_tokens: 1500,
     });
+    return { text: completion.choices[0].message.content, usage: completion.usage };
   });
 
   const text = response.text;
 
   if (platform === 'both') {
-    const linkedinMatch = text.match(/===\s*LINKEDIN\s*===\s*([\s\S]*?)(?:===\s*INSTAGRAM\s*===|$)/i);
-    const instagramMatch = text.match(/===\s*INSTAGRAM\s*===\s*([\s\S]*?)$/i);
+    const facebookMatch = text.match(/===\s*FACEBOOK\s*===\s*([\s\S]*?)(?:===\s*INSTAGRAM\s*===|$)/i);
+    const instagramMatch = text.match(/===\s*INSTAGRAM\s*===\s*([\s\S]*?)(?:===\s*FACEBOOK\s*===|$)/i);
 
     return {
-      linkedin: linkedinMatch ? linkedinMatch[1].trim() : text,
+      facebook: facebookMatch ? facebookMatch[1].trim() : text,
       instagram: instagramMatch ? instagramMatch[1].trim() : text,
       raw: text
     };
@@ -150,12 +168,12 @@ Write the social media post now. Remember to sound human, authentic, and engagin
 }
 
 export async function generatePlanSuggestion(month, year, theme, goals, targetAudience) {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not set');
+    throw new Error('GROQ_API_KEY is not set. Please add it to .env.local');
   }
 
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = new Groq({ apiKey });
 
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const monthName = monthNames[month - 1];
@@ -171,7 +189,7 @@ Create a content calendar with 12-16 posts spread across the month (3-4 posts pe
 
 For each post, provide:
 1. Suggested date (day of month)
-2. Platform (linkedin, instagram, or both)
+2. Platform (facebook, instagram, or both)
 3. Post title (catchy, brief)
 4. Written content gist (2-3 sentences describing what to write about)
 5. Visual content gist (1-2 sentences describing the ideal image/graphic)
@@ -190,14 +208,13 @@ IMPORTANT: Return ONLY valid JSON in this exact format, no markdown code fences:
 Make posts diverse — mix educational content, behind-the-scenes, tips, achievements, and engagement posts. Avoid being repetitive.`;
 
   const response = await callWithFastRetry(ai, TEXT_MODELS, async (model) => {
-    return await ai.models.generateContent({
+    const completion = await ai.chat.completions.create({
       model,
-      contents: prompt,
-      config: {
-        temperature: 0.8,
-        maxOutputTokens: 3000,
-      }
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.8,
+      max_tokens: 3000,
     });
+    return { text: completion.choices[0].message.content, usage: completion.usage };
   }, true);
 
   let text = response.text.trim();

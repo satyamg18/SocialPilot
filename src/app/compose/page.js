@@ -12,6 +12,7 @@ export default function ComposePage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -26,13 +27,12 @@ export default function ComposePage() {
   });
 
   const [generatedText, setGeneratedText] = useState(null);
-  const [selectedVersion, setSelectedVersion] = useState('linkedin');
+  const [selectedVersion, setSelectedVersion] = useState('facebook');
 
   const updateField = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  // === AI Text Generation ===
   async function handleGenerateText() {
     if (!formData.written_gist.trim()) {
       addToast('Please enter a content gist first', 'error');
@@ -59,7 +59,6 @@ export default function ComposePage() {
       const data = await res.json();
       setGeneratedText(data.content);
 
-      // Set the written content
       if (formData.platform === 'both') {
         updateField('written_content', data.content.raw);
       } else {
@@ -74,37 +73,22 @@ export default function ComposePage() {
     }
   }
 
-  // === AI Image Generation ===
   async function handleGenerateImage() {
     if (!formData.visual_gist.trim()) {
       addToast('Please describe the visual content first', 'error');
       return;
     }
 
-    setImageLoading(true);
-    try {
-      const res = await fetch('/api/generate/image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ visualGist: formData.visual_gist, style: 'modern' }),
-      });
+    const styleInstructions = 'modern clean minimalist design vibrant colors professional social media graphic';
+    const enhancedPrompt = `professional social media graphic ${styleInstructions} subject: ${formData.visual_gist} no text in image`;
+    const encodedPrompt = encodeURIComponent(enhancedPrompt);
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1080&height=1080&nologo=true&seed=${Date.now()}`;
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Image generation failed');
-      }
-
-      const data = await res.json();
-      updateField('image_path', data.image.path);
-      addToast('Image generated!', 'success');
-    } catch (err) {
-      addToast(err.message, 'error');
-    } finally {
-      setImageLoading(false);
-    }
+    setImageLoaded(false);
+    updateField('image_path', imageUrl);
+    addToast('Image loading — may take 10–15 seconds...', 'success');
   }
 
-  // === Save Post ===
   async function handleSave(status = 'draft') {
     if (!formData.title.trim()) {
       addToast('Please enter a post title', 'error');
@@ -186,8 +170,8 @@ export default function ComposePage() {
                   onChange={e => updateField('platform', e.target.value)}
                   id="select-platform"
                 >
-                  <option value="both">🌐 Both (LinkedIn + Instagram)</option>
-                  <option value="linkedin">💼 LinkedIn</option>
+                  <option value="both">🌐 Both (Facebook + Instagram)</option>
+                  <option value="facebook">📘 Facebook</option>
                   <option value="instagram">📷 Instagram</option>
                 </select>
               </div>
@@ -252,7 +236,7 @@ export default function ComposePage() {
               <label className="form-label">Content Gist / Idea</label>
               <textarea
                 className="form-textarea"
-                placeholder="Describe what this post should be about in a few sentences. E.g., 'We just launched our new sustainability initiative. Highlight the key goals: reducing carbon footprint by 40%, partnering with local communities, and our 2027 targets. Make it feel authentic and exciting.'"
+                placeholder="Describe what this post should be about in a few sentences."
                 value={formData.written_gist}
                 onChange={e => updateField('written_gist', e.target.value)}
                 rows={5}
@@ -272,16 +256,15 @@ export default function ComposePage() {
               </button>
             </div>
 
-            {/* Generated Content Display */}
             {generatedText && (
               <div>
                 {formData.platform === 'both' && (
                   <div className="tabs">
                     <button
-                      className={`tab ${selectedVersion === 'linkedin' ? 'active' : ''}`}
-                      onClick={() => setSelectedVersion('linkedin')}
+                      className={`tab ${selectedVersion === 'facebook' ? 'active' : ''}`}
+                      onClick={() => setSelectedVersion('facebook')}
                     >
-                      💼 LinkedIn Version
+                      📘 Facebook Version
                     </button>
                     <button
                       className={`tab ${selectedVersion === 'instagram' ? 'active' : ''}`}
@@ -336,7 +319,7 @@ export default function ComposePage() {
               <label className="form-label">Visual Content Description</label>
               <textarea
                 className="form-textarea"
-                placeholder="Describe the image you want. E.g., 'A modern office space with diverse team members collaborating around a whiteboard, warm natural lighting, plants in the background, professional but approachable atmosphere.'"
+                placeholder="Describe the image you want. E.g., 'A modern office space with diverse team members collaborating around a whiteboard, warm natural lighting, plants in the background.'"
                 value={formData.visual_gist}
                 onChange={e => updateField('visual_gist', e.target.value)}
                 rows={4}
@@ -357,16 +340,33 @@ export default function ComposePage() {
             {formData.image_path && (
               <div style={{ marginTop: '24px' }}>
                 <p className="form-label">Generated Image Preview</p>
-                <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', border: '1px solid var(--border-accent)' }}>
+                <div style={{
+                  borderRadius: 'var(--radius-lg)',
+                  overflow: 'hidden',
+                  border: '1px solid var(--border-accent)',
+                  minHeight: '200px',
+                  background: 'var(--bg-card)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                }}>
+                  {!imageLoaded && (
+                    <p style={{ position: 'absolute', textAlign: 'center', color: 'var(--text-muted)' }}>
+                      ⏳ Generating image — please wait...
+                    </p>
+                  )}
                   <img
                     src={formData.image_path}
                     alt="Generated post visual"
-                    style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', display: 'block' }}
+                    style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', display: imageLoaded ? 'block' : 'none' }}
+                    onLoad={() => setImageLoaded(true)}
+                    onError={() => setImageLoaded(false)}
                   />
                 </div>
                 <button
                   className="btn btn-ghost btn-sm mt-2"
-                  onClick={() => updateField('image_path', '')}
+                  onClick={() => { updateField('image_path', ''); setImageLoaded(false); }}
                 >
                   Remove Image
                 </button>
@@ -393,8 +393,8 @@ export default function ComposePage() {
               <h2 style={{ marginBottom: '24px' }}>👁️ Post Preview</h2>
 
               <div className="post-preview">
-                <div className="preview-linkedin" style={{ marginBottom: '24px' }}>
-                  <div className="preview-linkedin-header">
+                <div className="preview-facebook" style={{ marginBottom: '24px' }}>
+                  <div className="preview-facebook-header">
                     <div className="preview-avatar">🏢</div>
                     <div>
                       <div className="preview-name">Your Organization</div>
@@ -407,11 +407,20 @@ export default function ComposePage() {
                   </div>
 
                   {formData.image_path && (
-                    <img
-                      src={formData.image_path}
-                      alt="Post visual"
-                      className="preview-image"
-                    />
+                    <>
+                      <img
+                        src={formData.image_path}
+                        alt="Post visual"
+                        className="preview-image"
+                        onError={e => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'block';
+                        }}
+                      />
+                      <p style={{ display: 'none', padding: '16px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        ⏳ Image still generating — go back and wait a moment.
+                      </p>
+                    </>
                   )}
 
                   <div className="preview-content">
@@ -422,9 +431,9 @@ export default function ComposePage() {
 
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
                 <span className={`platform-badge ${formData.platform}`}>
-                  {formData.platform === 'both' ? '🌐 Both Platforms' : formData.platform === 'linkedin' ? '💼 LinkedIn' : '📷 Instagram'}
+                  {formData.platform === 'both' ? '🌐 Both Platforms' : formData.platform === 'facebook' ? '📘 Facebook' : '📷 Instagram'}
                 </span>
-                <span className={`status-badge draft`}>
+                <span className="status-badge draft">
                   <span className="status-dot"></span>
                   Draft
                 </span>

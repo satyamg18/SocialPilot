@@ -5,8 +5,9 @@ import Link from 'next/link';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
-  const [recentPosts, setRecentPosts] = useState([]);
+  const [allPosts, setAllPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [postFilter, setPostFilter] = useState('unpublished'); // 'unpublished' | 'published'
 
   useEffect(() => {
     async function fetchData() {
@@ -22,7 +23,9 @@ export default function DashboardPage() {
         }
         if (postsRes.ok) {
           const postsData = await postsRes.json();
-          setRecentPosts(postsData.posts?.slice(0, 6) || []);
+          // Sort posts by date descending
+          const sorted = (postsData.posts || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          setAllPosts(sorted);
         }
       } catch (e) {
         console.error('Failed to load dashboard:', e);
@@ -100,7 +103,7 @@ export default function DashboardPage() {
             <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🤖</div>
             <h3 style={{ marginBottom: '8px' }}>AI Content Generator</h3>
             <p className="text-muted text-sm" style={{ marginBottom: '20px' }}>
-              Just give a brief idea — our AI crafts engaging, human-sounding content for LinkedIn and Instagram.
+              Just give a brief idea — our AI crafts engaging, human-sounding content for Facebook and Instagram.
             </p>
             <Link href="/compose" className="btn btn-primary">
               Start Composing
@@ -137,31 +140,48 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Recent Posts */}
+      {/* Posts Section */}
       <div style={{ marginBottom: '32px' }}>
         <div className="flex items-center justify-between mb-4">
-          <h2>Recent Posts</h2>
-          <Link href="/calendar" className="btn btn-ghost btn-sm">View All →</Link>
+          <div className="tabs" style={{ marginBottom: 0 }}>
+            <button 
+              className={`tab ${postFilter === 'unpublished' ? 'active' : ''}`}
+              onClick={() => setPostFilter('unpublished')}
+            >
+              ⏳ Unpublished
+            </button>
+            <button 
+              className={`tab ${postFilter === 'published' ? 'active' : ''}`}
+              onClick={() => setPostFilter('published')}
+            >
+              🚀 Published
+            </button>
+          </div>
+          <Link href="/calendar" className="btn btn-ghost btn-sm">Calendar View →</Link>
         </div>
 
-        {recentPosts.length === 0 ? (
+        {allPosts.filter(p => postFilter === 'published' ? p.status === 'published' : p.status !== 'published').length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon">📭</div>
-            <div className="empty-state-title">No posts yet</div>
+            <div className="empty-state-icon">{postFilter === 'published' ? '🚀' : '📭'}</div>
+            <div className="empty-state-title">No {postFilter} posts</div>
             <div className="empty-state-text">
-              Start by creating your first post or generating a monthly content plan.
+              {postFilter === 'published' 
+                ? "You haven't published any posts yet. Approve a draft to get started!" 
+                : "All caught up! Start by generating a new post."}
             </div>
-            <Link href="/compose" className="btn btn-primary">Create First Post</Link>
+            {postFilter !== 'published' && <Link href="/compose" className="btn btn-primary">Create Post</Link>}
           </div>
         ) : (
           <div className="posts-grid">
-            {recentPosts.map(post => (
+            {allPosts
+              .filter(p => postFilter === 'published' ? p.status === 'published' : p.status !== 'published')
+              .map(post => (
               <div key={post.id} className="post-card">
                 <div className="post-card-header">
                   <div className="post-card-title">{post.title}</div>
                   <div className="post-card-meta">
                     <span className={`platform-badge ${post.platform}`}>
-                      {post.platform === 'linkedin' ? '💼' : post.platform === 'instagram' ? '📷' : '🌐'} {post.platform}
+                      {post.platform === 'facebook' ? '📘' : post.platform === 'instagram' ? '📷' : '🌐'} {post.platform}
                     </span>
                   </div>
                 </div>
@@ -187,7 +207,7 @@ export default function DashboardPage() {
                   )}
 
                   <div style={{ width: '100%', marginTop: '8px', display: 'flex', justifyContent: 'flex-end' }}>
-                    <a href={`/edit/${post.id}`} className="btn btn-ghost btn-sm" style={{ textDecoration: 'none' }}>✏️ Edit</a>
+                    <a href={`/edit/${post.id}`} className="btn btn-ghost btn-sm" style={{ textDecoration: 'none' }}>✏️ {post.status === 'published' ? 'View' : 'Edit'}</a>
                   </div>
                 </div>
               </div>

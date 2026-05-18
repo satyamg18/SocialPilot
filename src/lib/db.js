@@ -82,7 +82,7 @@ async function initPostgresTables(pool) {
       scheduled_date TEXT,
       scheduled_time TEXT,
       plan_id INTEGER REFERENCES monthly_plans(id),
-      linkedin_post_id TEXT,
+      facebook_post_id TEXT,
       instagram_post_id TEXT,
       published_at TIMESTAMP,
       likes INTEGER DEFAULT 0,
@@ -125,7 +125,7 @@ function initSqliteTables(db) {
       id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, platform TEXT NOT NULL DEFAULT 'both',
       written_gist TEXT, written_content TEXT, visual_gist TEXT, image_prompt TEXT, image_path TEXT,
       status TEXT NOT NULL DEFAULT 'draft', scheduled_date TEXT, scheduled_time TEXT, plan_id INTEGER REFERENCES monthly_plans(id),
-      linkedin_post_id TEXT, instagram_post_id TEXT, published_at DATETIME,
+      facebook_post_id TEXT, instagram_post_id TEXT, published_at DATETIME,
       likes INTEGER DEFAULT 0, comments INTEGER DEFAULT 0, shares INTEGER DEFAULT 0, impressions INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );

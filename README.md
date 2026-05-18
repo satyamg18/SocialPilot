@@ -1,6 +1,6 @@
 # 🤖 Social Media Agent
 
-An autonomous, AI-powered social media manager built with Next.js 15. The agent handles content generation, visual assets, intelligent scheduling, automated publishing, and engagement tracking across LinkedIn and Instagram.
+An autonomous, AI-powered social media manager built with Next.js 15. The agent handles content generation, visual assets, intelligent scheduling, automated publishing, and engagement tracking across Facebook and Instagram.
 
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
 ![Next.js](https://img.shields.io/badge/Next.js-15+-black?logo=next.js)
@@ -14,7 +14,7 @@ An autonomous, AI-powered social media manager built with Next.js 15. The agent 
 - **Smart Calendar & Planning**: Let the AI suggest an entire month's worth of content themes, goals, and targets tailored to your audience.
 - **Automated Publishing Cron**: A highly resilient publishing engine that automatically checks your database for approved posts and publishes them on schedule.
 - **n8n Orchestration & Direct API Fallbacks**: Uses `n8n` workflows for advanced publishing orchestration, seamlessly degrading to direct local API integration if the automation engine goes offline.
-- **OAuth 2.0 Security**: Standard, secure OAuth integration to publish on behalf of actual LinkedIn Profiles and Instagram Business Accounts safely.
+- **OAuth 2.0 Security**: Standard, secure OAuth integration to publish on behalf of actual Facebook Pages and Instagram Business Accounts safely.
 - **Live Engagement Analytics**: A background sync job that pulls real-world `Likes`, `Comments`, and `Impressions` back into your unified dashboard.
 - **Hybrid Data Layer**: Uses lightweight `better-sqlite3` for fast local development, but automatically adapts to use PostgreSQL (`pg`) when deployed to the cloud (e.g. Vercel Postgres).
 
@@ -36,7 +36,7 @@ An autonomous, AI-powered social media manager built with Next.js 15. The agent 
 
 - Node.js v18+
 - [Google Gemini API Key](https://aistudio.google.com/) (For content generation)
-- [LinkedIn Developer API Credentials](https://developer.linkedin.com/) (For posting via OAuth)
+- [Facebook Developer API Credentials](https://developers.facebook.com/) (For posting via OAuth)
 - [Meta/Facebook App Credentials](https://developers.facebook.com/) (For Instagram posting via OAuth)
 
 ### 1. Installation
@@ -66,9 +66,9 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 # Google AI credentials
 GEMINI_API_KEY=your_gemini_api_key_here
 
-# LinkedIn OAuth credentials
-LINKEDIN_CLIENT_ID=your_linkedin_client_id
-LINKEDIN_CLIENT_SECRET=your_linkedin_client_secret
+# Facebook OAuth credentials
+FACEBOOK_APP_ID=your_facebook_app_id
+FACEBOOK_APP_SECRET=your_facebook_app_secret
 
 # Instagram/Meta OAuth credentials
 INSTAGRAM_APP_ID=your_meta_app_id

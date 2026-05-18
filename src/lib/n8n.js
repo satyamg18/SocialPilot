@@ -1,6 +1,6 @@
 // n8n Webhook Client with automatic fallback to direct API calls
 // If n8n is running → routes through n8n workflows
-// If n8n is down → falls back to direct Gemini/LinkedIn/Instagram calls
+// If n8n is down → falls back to direct Gemini/Facebook/Instagram calls
 
 const N8N_WEBHOOK_BASE = process.env.N8N_WEBHOOK_BASE || 'http://localhost:5678/webhook';
 const N8N_ENABLED = process.env.N8N_ENABLED !== 'false'; // enabled by default
@@ -64,9 +64,9 @@ async function triggerWebhook(path, data) {
  */
 function buildTextPrompt(gist, platform = 'both', tone = 'professional') {
   const platformInstructions = {
-    linkedin: 'Write this as a LinkedIn post. Professional, insightful, with line breaks for readability. 2-3 hashtags at the end.',
-    instagram: 'Write this as an Instagram caption. Engaging, visual language, with a hook in the first line. 5-10 hashtags at the end. Include a call-to-action.',
-    both: 'Write TWO versions — one for LinkedIn and one for Instagram. Clearly label each with "=== LINKEDIN ===" and "=== INSTAGRAM ===" headers. Adapt the tone and format for each platform.',
+    facebook: 'Write this as a Facebook post. Engaging, conversational, with line breaks for readability. 1-2 hashtags at the end.',
+    instagram: 'Write this as an Instagram caption. Visual, exciting, emoji-rich. 5-7 hashtags at the end.',
+    both: 'Write TWO versions — one for Facebook and one for Instagram. Clearly label each with "=== FACEBOOK ===" and "=== INSTAGRAM ===" headers. Adapt the tone and format for each platform.',
   };
 
   const toneMap = {
@@ -99,7 +99,7 @@ export async function generateTextViaN8n(gist, platform = 'both', tone = 'profes
     tone,
   });
 
-  // n8n returns { content: { linkedin, instagram, raw } }
+  // n8n returns { content: { facebook, instagram, raw } }
   return result.content || result;
 }
 
@@ -150,7 +150,7 @@ Create a content calendar with 12-16 posts spread across the month (3-4 per week
 
 For each post, provide:
 1. Suggested date (day of month)
-2. Platform (linkedin, instagram, or both)
+2. Platform (facebook, instagram, or both)
 3. Post title (catchy, brief)
 4. Written content gist (2-3 sentences describing what to write about)
 5. Visual content gist (1-2 sentences describing the ideal image/graphic)

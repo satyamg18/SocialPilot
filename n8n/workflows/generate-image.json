@@ -30,7 +30,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"instances\": [\n    {\n      \"prompt\": \"Create a high-quality social media graphic. {{ $json.body.styleInstruction || 'Modern, clean, minimalist design with vibrant colors.' }}\\n\\nSubject: {{ $json.body.visualGist }}\\n\\nThe image should be professional, visually striking, and suitable for LinkedIn and Instagram. No text in the image.\"\n    }\n  ],\n  \"parameters\": {\n    \"sampleCount\": 1\n  }\n}",
+        "jsonBody": "={\n  \"instances\": [\n    {\n      \"prompt\": \"Create a high-quality social media graphic. {{ $json.body.styleInstruction || 'Modern, clean, minimalist design with vibrant colors.' }}\\n\\nSubject: {{ $json.body.visualGist }}\\n\\nThe image should be professional, visually striking, and suitable for Facebook and Instagram. No text in the image.\"\n    }\n  ],\n  \"parameters\": {\n    \"sampleCount\": 1\n  }\n}",
         "options": {
           "timeout": 90000
         }

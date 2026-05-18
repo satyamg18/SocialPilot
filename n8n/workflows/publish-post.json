@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Route to the correct platform(s)\nconst body = $input.first().json.body;\nconst platform = body.platform || 'both';\n\nreturn [{\n  json: {\n    ...body,\n    publishLinkedin: platform === 'linkedin' || platform === 'both',\n    publishInstagram: platform === 'instagram' || platform === 'both'\n  }\n}];"
+        "jsCode": "// Route to the correct platform(s)\nconst body = $input.first().json.body;\nconst platform = body.platform || 'both';\n\nreturn [{\n  json: {\n    ...body,\n    publishFacebook: platform === 'facebook' || platform === 'both',\n    publishInstagram: platform === 'instagram' || platform === 'both'\n  }\n}];"
       },
       "id": "a1b2c3d4-0004-4000-8000-000000000002",
       "name": "Route Platform",
@@ -30,8 +30,8 @@
         "conditions": {
           "conditions": [
             {
-              "id": "should-linkedin",
-              "leftValue": "={{ $json.publishLinkedin }}",
+              "id": "should-facebook",
+              "leftValue": "={{ $json.publishFacebook }}",
               "rightValue": true,
               "operator": {
                 "type": "boolean",
@@ -42,7 +42,7 @@
         }
       },
       "id": "a1b2c3d4-0004-4000-8000-000000000003",
-      "name": "LinkedIn?",
+      "name": "Facebook?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [720, 160]
@@ -72,20 +72,20 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.linkedin.com/rest/posts",
+        "url": "https://api.facebook.com/rest/posts",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "Authorization",
-              "value": "=Bearer {{ $('Route Platform').first().json.linkedinToken }}"
+              "value": "=Bearer {{ $('Route Platform').first().json.facebookToken }}"
             },
             {
               "name": "Content-Type",
               "value": "application/json"
             },
             {
-              "name": "LinkedIn-Version",
+              "name": "Facebook-Version",
               "value": "202602"
             },
             {
@@ -102,7 +102,7 @@
         }
       },
       "id": "a1b2c3d4-0004-4000-8000-000000000005",
-      "name": "LinkedIn — Post",
+      "name": "Facebook — Post",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [960, 160],
@@ -157,7 +157,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Merge results from LinkedIn and Instagram\nconst results = { linkedin: null, instagram: null };\nconst errors = [];\n\n// Check LinkedIn result\ntry {\n  const li = $('LinkedIn — Post').first()?.json;\n  if (li && !li.error && !li.message) {\n    results.linkedin = { success: true, postId: li['x-restli-id'] || null };\n  } else if (li?.error || li?.message) {\n    errors.push('LinkedIn: ' + JSON.stringify(li.error || li.message));\n  }\n} catch(e) {\n  // LinkedIn was skipped\n}\n\n// Check Instagram result\ntry {\n  const ig = $('IG — Publish').first()?.json;\n  if (ig && ig.id) {\n    results.instagram = { postId: ig.id, success: true };\n  } else if (ig?.error) {\n    errors.push('Instagram: ' + JSON.stringify(ig.error));\n  }\n} catch(e) {\n  // Instagram was skipped\n}\n\nconst success = !!(results.linkedin || results.instagram);\n\nreturn [{\n  json: {\n    success,\n    results,\n    errors: errors.length > 0 ? errors : undefined\n  }\n}];"
+        "jsCode": "// Merge results from Facebook and Instagram\nconst results = { facebook: null, instagram: null };\nconst errors = [];\n\n// Check Facebook result\ntry {\n  const li = $('Facebook — Post').first()?.json;\n  if (li && !li.error && !li.message) {\n    results.facebook = { success: true, postId: li['x-restli-id'] || null };\n  } else if (li?.error || li?.message) {\n    errors.push('Facebook: ' + JSON.stringify(li.error || li.message));\n  }\n} catch(e) {\n  // Facebook was skipped\n}\n\n// Check Instagram result\ntry {\n  const ig = $('IG — Publish').first()?.json;\n  if (ig && ig.id) {\n    results.instagram = { postId: ig.id, success: true };\n  } else if (ig?.error) {\n    errors.push('Instagram: ' + JSON.stringify(ig.error));\n  }\n} catch(e) {\n  // Instagram was skipped\n}\n\nconst success = !!(results.facebook || results.instagram);\n\nreturn [{\n  json: {\n    success,\n    results,\n    errors: errors.length > 0 ? errors : undefined\n  }\n}];"
       },
       "id": "a1b2c3d4-0004-4000-8000-000000000009",
       "name": "Merge Results",
@@ -188,15 +188,15 @@
     "Route Platform": {
       "main": [
         [
-          { "node": "LinkedIn?", "type": "main", "index": 0 },
+          { "node": "Facebook?", "type": "main", "index": 0 },
           { "node": "Instagram?", "type": "main", "index": 0 }
         ]
       ]
     },
-    "LinkedIn?": {
+    "Facebook?": {
       "main": [
         [
-          { "node": "LinkedIn — Post", "type": "main", "index": 0 }
+          { "node": "Facebook — Post", "type": "main", "index": 0 }
         ],
         [
           { "node": "Merge Results", "type": "main", "index": 0 }
@@ -213,7 +213,7 @@
         ]
       ]
     },
-    "LinkedIn — Post": {
+    "Facebook — Post": {
       "main": [
         [
           { "node": "Merge Results", "type": "main", "index": 0 }

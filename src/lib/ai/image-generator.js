@@ -1,137 +1,46 @@
-import { GoogleGenAI } from '@google/genai';
-import fs from 'fs';
-import path from 'path';
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function generateImage(visualGist, style = 'modern') {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not set. Please add it to .env.local');
+function logTokenUsage(model, response) {
+  const usage = response?.usageMetadata ?? response?.usage;
+  if (!usage) {
+    console.log(`[token-usage] ${model}: no usage metadata in response`);
+    return;
   }
-
-  const ai = new GoogleGenAI({ apiKey });
-
-  const styleInstructions = {
-    modern: 'Modern, clean, minimalist design with vibrant colors. Professional social media graphic.',
-    corporate: 'Corporate, polished, trustworthy. Blue and neutral tones. Executive-level design.',
-    creative: 'Creative, bold, artistic. Unique composition with eye-catching colors and shapes.',
-    minimal: 'Ultra-minimal, lots of white space, elegant typography focus. Sophisticated and refined.',
-    warm: 'Warm, inviting, human-centric. Soft colors, natural lighting feel. Community-oriented.',
-    tech: 'Futuristic, tech-forward. Dark backgrounds with glowing accents, geometric patterns.',
-  };
-
-  const enhancedPrompt = `Create a high-quality social media graphic. ${styleInstructions[style] || styleInstructions.modern}
-
-Subject: ${visualGist}
-
-The image should be professional, visually striking, and suitable for LinkedIn and Instagram. No text in the image.`;
-
-  // Method 1: Try Imagen API (purpose-built for image generation)
-  try {
-    console.log('Trying Imagen 3 for image generation...');
-    const response = await ai.models.generateImages({
-      model: 'imagen-3.0-generate-002',
-      prompt: enhancedPrompt,
-      config: {
-        numberOfImages: 1,
-      },
-    });
-
-    if (response.generatedImages && response.generatedImages.length > 0) {
-      const imageBytes = response.generatedImages[0].image.imageBytes;
-      return saveImage(imageBytes);
-    }
-  } catch (error) {
-    console.log('Imagen 3 failed:', error?.message?.substring(0, 100) || 'unknown error');
-  }
-
-  // Method 2: Try Imagen 3 fast
-  try {
-    console.log('Trying Imagen 3 Fast...');
-    const response = await ai.models.generateImages({
-      model: 'imagen-3.0-fast-generate-001',
-      prompt: enhancedPrompt,
-      config: {
-        numberOfImages: 1,
-      },
-    });
-
-    if (response.generatedImages && response.generatedImages.length > 0) {
-      const imageBytes = response.generatedImages[0].image.imageBytes;
-      return saveImage(imageBytes);
-    }
-  } catch (error) {
-    console.log('Imagen 3 Fast failed:', error?.message?.substring(0, 100) || 'unknown error');
-  }
-
-  // Method 3: Try Gemini with image output
-  const geminiModels = ['gemini-2.0-flash-exp', 'gemini-2.0-flash'];
-  for (const model of geminiModels) {
-    try {
-      console.log(`Trying ${model} for image generation...`);
-      const response = await ai.models.generateContent({
-        model,
-        contents: enhancedPrompt,
-        config: {
-          responseModalities: ['IMAGE', 'TEXT'],
-        }
-      });
-
-      const parts = response.candidates?.[0]?.content?.parts || [];
-      for (const part of parts) {
-        if (part.inlineData && part.inlineData.mimeType?.startsWith('image/')) {
-          return saveImage(part.inlineData.data);
-        }
-      }
-      console.log(`${model} returned no image data`);
-    } catch (error) {
-      console.log(`${model} failed:`, error?.message?.substring(0, 100) || 'unknown');
-    }
-  }
-
-  console.warn('Image generation unavailable due to API rate limits. Returning mock placeholder image.');
-  
-  // Return a beautiful abstract placeholder image so the app still works visually
-  return {
-    path: `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1080&auto=format&fit=crop`,
-    fullPath: null,
-    filename: `mock-placeholder.jpg`,
-    isDataUri: false,
-    isMock: true
-  };
+  const promptTokens = usage.promptTokenCount ?? usage.prompt_tokens ?? 'n/a';
+  const candidateTokens = usage.candidatesTokenCount ?? usage.completion_tokens ?? 'n/a';
+  const totalTokens = usage.totalTokenCount ?? usage.total_tokens ?? 'n/a';
+  console.log(
+    `[token-usage] model=${model}  prompt=${promptTokens}  output=${candidateTokens}  total=${totalTokens}`
+  );
 }
 
-function saveImage(base64Data) {
-  // On Vercel, we can't write to filesystem — return data URI instead
-  const isVercel = process.env.VERCEL === '1';
+export async function generateImage(visualGist, style = 'modern') {
+  const styleInstructions = {
+    modern: 'modern minimalist design, vibrant colors, clean aesthetic, high quality, digital art',
+    corporate: 'corporate, professional, polished, blue and neutral tones, high-end photography',
+    creative: 'creative, bold artistic composition, eye-catching colors, surreal, highly detailed',
+    minimal: 'ultra minimal, lots of white space, sophisticated, elegant, high resolution',
+    warm: 'warm, inviting, human-centric, soft natural lighting, cinematic photography',
+    tech: 'futuristic, cyberpunk, tech-forward, glowing accents, 8k, highly detailed',
+  };
 
-  if (isVercel) {
-    // Return as data URI that can be displayed directly in <img src>
-    return {
-      path: `data:image/png;base64,${base64Data}`,
-      fullPath: null,
-      filename: `post-${Date.now()}.png`,
-      isDataUri: true,
-    };
-  }
+  // Clean up gist and formulate a strong descriptive prompt
+  const cleanGist = visualGist.replace(/subject:/gi, '').trim();
+  const enhancedPrompt = `${cleanGist}, ${styleInstructions[style] || styleInstructions.modern}, masterpiece, highly detailed, professional social media graphic`;
+  
+  const encodedPrompt = encodeURIComponent(enhancedPrompt);
+  // Add negative prompt to strongly discourage text, watermarks, and messy artifacts
+  const negativePrompt = encodeURIComponent("text, words, letters, signature, watermark, messy, ugly, poorly drawn, abstract chaos");
+  const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1080&height=1080&nologo=true&model=flux&negative=${negativePrompt}`;
 
-  // Local: save to filesystem
-  const generatedDir = path.join(process.cwd(), 'public', 'generated');
-  if (!fs.existsSync(generatedDir)) {
-    fs.mkdirSync(generatedDir, { recursive: true });
-  }
-
-  const filename = `post-${Date.now()}.png`;
-  const filepath = path.join(generatedDir, filename);
-  const buffer = Buffer.from(base64Data, 'base64');
-  fs.writeFileSync(filepath, buffer);
-
+  console.log('[image-generator] Returning Pollinations URL — image renders on load');
   return {
-    path: `/generated/${filename}`,
-    fullPath: filepath,
-    filename,
+    path: imageUrl,
+    fullPath: null,
+    filename: `post-${Date.now()}.png`,
+    isDataUri: false,
+    isMock: false
   };
 }

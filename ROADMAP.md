@@ -5,9 +5,9 @@ This document outlines the remaining major features required to turn the Social 
 ## Phase 1: Social Media Authentication (Completed ✅)
 Without real authentication, the agent cannot publish content to actual social media accounts. We need to implement standard OAuth 2.0 flows.
 
-- [x] **LinkedIn OAuth Flow**
-  - Implement `/api/auth/linkedin` (Redirect to LinkedIn consent screen)
-  - Implement `/api/auth/linkedin/callback` (Exchange code for token, fetch user profile)
+- [x] **Facebook OAuth Flow**
+  - Implement `/api/auth/facebook` (Redirect to Facebook consent screen)
+  - Implement `/api/auth/facebook/callback` (Exchange code for token, fetch user profile)
   - Securely store the `access_token` and `user_id` in the `platform_tokens` database table.
   - Update Settings UI to trigger the flow and display the authenticated user.
 - [x] **Instagram (Meta) OAuth Flow**
@@ -39,7 +39,7 @@ The app currently uses `better-sqlite3`. While excellent for local development, 
 Close the feedback loop by bringing real-world metrics back into the dashboard.
 
 - [x] **Analytics Sync Job**
-  - Create a daily background job to query the LinkedIn and Instagram APIs for published posts.
+  - Create a daily background job to query the Facebook and Instagram APIs for published posts.
   - Fetch Likes, Comments, Shares, and Impressions.
 - [x] **Dashboard Visualization**
   - Update `src/app/page.js` to display engagement graphs and top-performing posts instead of just internal draft/approval stats.

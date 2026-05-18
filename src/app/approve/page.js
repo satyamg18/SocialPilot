@@ -137,7 +137,7 @@ export default function ApprovePage() {
                     <h3 style={{ marginBottom: '8px' }}>{post.title}</h3>
                     <div className="flex gap-2">
                       <span className={`platform-badge ${post.platform}`}>
-                        {post.platform === 'linkedin' ? '💼' : post.platform === 'instagram' ? '📷' : '🌐'} {post.platform}
+                        {post.platform === 'facebook' ? '📘' : post.platform === 'instagram' ? '📷' : '🌐'} {post.platform}
                       </span>
                       {post.scheduled_date && (
                         <span className="text-xs text-muted" style={{ padding: '4px 8px' }}>

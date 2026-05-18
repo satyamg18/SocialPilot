@@ -114,8 +114,8 @@ export default function EditPostPage() {
               value={platform}
               onChange={e => setPlatform(e.target.value)}
             >
-              <option value="both">Both (LinkedIn + Instagram)</option>
-              <option value="linkedin">LinkedIn Only</option>
+              <option value="both">Both (Facebook + Instagram)</option>
+              <option value="facebook">Facebook Only</option>
               <option value="instagram">Instagram Only</option>
             </select>
           </div>

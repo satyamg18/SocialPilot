@@ -4,20 +4,22 @@ import { getPostStats, getToken, hasGeminiKey } from '@/lib/db';
 export async function GET() {
   try {
     const stats = await getPostStats();
-    const linkedinToken = await getToken('linkedin');
+    const facebookToken = await getToken('facebook');
     const instagramToken = await getToken('instagram');
 
     return NextResponse.json({
       stats,
       connections: {
-        linkedin: !!linkedinToken,
+        facebook: !!facebookToken,
         instagram: !!instagramToken,
-        linkedinUser: linkedinToken?.user_name || null,
+        facebookUser: facebookToken?.user_name || null,
         instagramUser: instagramToken?.user_name || null,
       },
       config: {
         hasGeminiKey: hasGeminiKey(),
         n8nEnabled: process.env.N8N_ENABLED !== 'false',
+        hasFacebookKeys: !!(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET),
+        hasInstagramKeys: !!(process.env.INSTAGRAM_APP_ID && process.env.INSTAGRAM_APP_SECRET),
       },
     });
   } catch (error) {

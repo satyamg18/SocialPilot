@@ -16,7 +16,7 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [pendingCount, setPendingCount] = useState(0);
-  const [connections, setConnections] = useState({ linkedin: false, instagram: false });
+  const [connections, setConnections] = useState({ facebook: false, instagram: false });
 
   useEffect(() => {
     async function fetchStats() {
@@ -69,8 +69,8 @@ export default function Sidebar() {
       <div className="sidebar-connections">
         <div className="nav-section-label">Connections</div>
         <div className="connection-item">
-          <span className={`connection-dot ${connections.linkedin ? 'connected' : 'disconnected'}`} />
-          <span>LinkedIn {connections.linkedinUser ? `(${connections.linkedinUser})` : ''}</span>
+          <span className={`connection-dot ${connections.facebook ? 'connected' : 'disconnected'}`} />
+          <span>Facebook {connections.facebookUser ? `(${connections.facebookUser})` : ''}</span>
         </div>
         <div className="connection-item">
           <span className={`connection-dot ${connections.instagram ? 'connected' : 'disconnected'}`} />
