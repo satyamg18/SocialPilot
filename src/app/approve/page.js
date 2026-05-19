@@ -3,25 +3,38 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/Toast';
 
+const TABS = [
+  { key: 'pending_approval', label: '⏳ Pending Review', emptyIcon: '✅', emptyTitle: 'All caught up!', emptyText: 'No posts are waiting for approval.' },
+  { key: 'approved',         label: '✅ Approved / Scheduled', emptyIcon: '📅', emptyTitle: 'Nothing approved yet', emptyText: 'Approve a post from the Pending tab to see it here.' },
+  { key: 'published',        label: '🚀 Posted', emptyIcon: '🚀', emptyTitle: 'No posts published yet', emptyText: 'Once a post is published it will appear here.' },
+];
+
 export default function ApprovePage() {
   const addToast = useToast();
-  const [posts, setPosts] = useState([]);
+  const [activeTab, setActiveTab] = useState('pending_approval');
+  const [postsByTab, setPostsByTab] = useState({ pending_approval: [], approved: [], published: [] });
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState({});
   const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
-    fetchPosts();
+    fetchAllTabs();
   }, []);
 
-  async function fetchPosts() {
+  async function fetchAllTabs() {
     setLoading(true);
     try {
-      const res = await fetch('/api/content?status=pending_approval');
-      if (res.ok) {
-        const data = await res.json();
-        setPosts(data.posts || []);
-      }
+      const [pendingRes, approvedRes, publishedRes] = await Promise.all([
+        fetch('/api/content?status=pending_approval'),
+        fetch('/api/content?status=approved'),
+        fetch('/api/content?status=published'),
+      ]);
+
+      const pending  = pendingRes.ok  ? (await pendingRes.json()).posts  || [] : [];
+      const approved = approvedRes.ok ? (await approvedRes.json()).posts || [] : [];
+      const published= publishedRes.ok? (await publishedRes.json()).posts|| [] : [];
+
+      setPostsByTab({ pending_approval: pending, approved, published });
     } catch (e) {
       console.error('Failed to fetch:', e);
     } finally {
@@ -39,12 +52,12 @@ export default function ApprovePage() {
 
       if (res.ok) {
         addToast(
-          newStatus === 'approved' ? 'Post approved!' :
-          newStatus === 'draft' ? 'Post sent back for revision.' :
+          newStatus === 'approved' ? 'Post approved! It will publish on its scheduled date.' :
+          newStatus === 'draft'    ? 'Post sent back to draft.' :
           'Status updated.',
           newStatus === 'approved' ? 'success' : 'info'
         );
-        fetchPosts();
+        fetchAllTabs();
       }
     } catch (err) {
       addToast(err.message, 'error');
@@ -54,7 +67,7 @@ export default function ApprovePage() {
   async function handlePublish(postId) {
     setPublishing(prev => ({ ...prev, [postId]: true }));
     try {
-      // First approve if not already
+      // Ensure the post is approved before publishing
       await fetch(`/api/content/${postId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -71,7 +84,7 @@ export default function ApprovePage() {
 
       if (data.success) {
         addToast('Post published successfully!', 'success');
-        fetchPosts();
+        fetchAllTabs();
       } else {
         addToast(`Publishing had issues: ${data.errors?.join(', ') || 'Unknown error'}`, 'error');
       }
@@ -105,26 +118,68 @@ export default function ApprovePage() {
     );
   }
 
+  const currentTab = TABS.find(t => t.key === activeTab);
+  const posts = postsByTab[activeTab] || [];
+  const pendingCount = postsByTab.pending_approval.length;
+
   return (
     <div className="animate-fadeIn">
       <div className="page-header">
         <div>
           <h1 className="page-title">Approval Queue</h1>
           <p className="page-subtitle">
-            {posts.length === 0
-              ? 'No posts waiting for approval'
-              : `${posts.length} post${posts.length > 1 ? 's' : ''} awaiting your review`}
+            {pendingCount > 0
+              ? `${pendingCount} post${pendingCount > 1 ? 's' : ''} awaiting your review`
+              : 'All posts reviewed'}
           </p>
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="tabs" style={{ marginBottom: '24px' }}>
+        {TABS.map(tab => (
+          <button
+            key={tab.key}
+            className={`tab ${activeTab === tab.key ? 'active' : ''}`}
+            onClick={() => setActiveTab(tab.key)}
+            style={{ position: 'relative' }}
+          >
+            {tab.label}
+            {tab.key === 'pending_approval' && postsByTab.pending_approval.length > 0 && (
+              <span style={{
+                marginLeft: '8px',
+                background: 'var(--status-pending)',
+                color: '#fff',
+                borderRadius: '999px',
+                padding: '1px 7px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+              }}>
+                {postsByTab.pending_approval.length}
+              </span>
+            )}
+            {tab.key === 'approved' && postsByTab.approved.length > 0 && (
+              <span style={{
+                marginLeft: '8px',
+                background: 'var(--status-approved)',
+                color: '#fff',
+                borderRadius: '999px',
+                padding: '1px 7px',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+              }}>
+                {postsByTab.approved.length}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
       {posts.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state-icon">✅</div>
-          <div className="empty-state-title">All caught up!</div>
-          <div className="empty-state-text">
-            No posts are waiting for approval. Create new content to get started.
-          </div>
+          <div className="empty-state-icon">{currentTab.emptyIcon}</div>
+          <div className="empty-state-title">{currentTab.emptyTitle}</div>
+          <div className="empty-state-text">{currentTab.emptyText}</div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -135,14 +190,30 @@ export default function ApprovePage() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 style={{ marginBottom: '8px' }}>{post.title}</h3>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
                       <span className={`platform-badge ${post.platform}`}>
                         {post.platform === 'facebook' ? '📘' : post.platform === 'instagram' ? '📷' : '🌐'} {post.platform}
                       </span>
+
+                      {/* Status Badge */}
+                      <span className={`status-badge ${post.status}`}>
+                        <span className="status-dot"></span>
+                        {post.status === 'pending_approval' ? 'Pending Review' :
+                         post.status === 'approved'         ? 'Approved — Awaiting Publish' :
+                         post.status === 'published'        ? 'Published' :
+                         post.status.replace('_', ' ')}
+                      </span>
+
                       {post.scheduled_date && (
                         <span className="text-xs text-muted" style={{ padding: '4px 8px' }}>
                           📅 {new Date(post.scheduled_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           {post.scheduled_time ? ` at ${post.scheduled_time}` : ''}
+                        </span>
+                      )}
+
+                      {post.status === 'published' && post.published_at && (
+                        <span className="text-xs text-muted" style={{ padding: '4px 8px' }}>
+                          🕐 Posted {new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
                       )}
                     </div>
@@ -168,7 +239,7 @@ export default function ApprovePage() {
                       color: 'var(--text-secondary)',
                       fontSize: '0.9rem',
                       lineHeight: '1.7',
-                      maxHeight: expandedId === post.id ? 'none' : '200px',
+                      maxHeight: expandedId === post.id ? 'none' : '150px',
                       overflow: 'hidden',
                       position: 'relative',
                     }}>
@@ -194,7 +265,7 @@ export default function ApprovePage() {
                         alt="Post visual"
                         style={{
                           width: '100%',
-                          maxHeight: expandedId === post.id ? '400px' : '200px',
+                          maxHeight: expandedId === post.id ? '400px' : '150px',
                           objectFit: 'cover',
                           borderRadius: 'var(--radius-md)',
                           border: '1px solid var(--border-subtle)',
@@ -204,6 +275,24 @@ export default function ApprovePage() {
                   )}
                 </div>
 
+                {/* Engagement (for published posts) */}
+                {post.status === 'published' && (post.likes > 0 || post.comments > 0 || post.impressions > 0) && (
+                  <div style={{
+                    display: 'flex',
+                    gap: '16px',
+                    marginTop: '16px',
+                    padding: '12px 16px',
+                    background: 'var(--bg-secondary)',
+                    borderRadius: 'var(--radius-md)',
+                    fontSize: '0.85rem',
+                    color: 'var(--text-secondary)',
+                  }}>
+                    <span>❤️ {post.likes || 0} likes</span>
+                    <span>💬 {post.comments || 0} comments</span>
+                    <span>👁️ {post.impressions || 0} impressions</span>
+                  </div>
+                )}
+
                 {/* Actions */}
                 <div style={{
                   display: 'flex',
@@ -211,43 +300,102 @@ export default function ApprovePage() {
                   marginTop: '20px',
                   paddingTop: '20px',
                   borderTop: '1px solid var(--border-subtle)',
+                  flexWrap: 'wrap',
                 }}>
-                  <button
-                    className="btn btn-success"
-                    onClick={() => handleStatusChange(post.id, 'approved')}
-                    id={`btn-approve-${post.id}`}
-                  >
-                    ✅ Approve
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => handlePublish(post.id)}
-                    disabled={publishing[post.id]}
-                    id={`btn-publish-${post.id}`}
-                  >
-                    {publishing[post.id] ? <><span className="spinner"></span> Publishing...</> : '🚀 Approve & Publish Now'}
-                  </button>
-                  <a
-                    href={`/edit/${post.id}`}
-                    className="btn btn-secondary"
-                    style={{ textDecoration: 'none' }}
-                  >
-                    ✏️ Edit Post
-                  </a>
-                  <button
-                    className="btn btn-ghost"
-                    onClick={() => handleStatusChange(post.id, 'draft')}
-                    id={`btn-revise-${post.id}`}
-                  >
-                    🔄 Check Back to Draft
-                  </button>
+                  {/* Pending review actions */}
+                  {post.status === 'pending_approval' && (
+                    <>
+                      <button
+                        className="btn btn-success"
+                        onClick={() => handleStatusChange(post.id, 'approved')}
+                        id={`btn-approve-${post.id}`}
+                      >
+                        ✅ Approve (Schedule)
+                      </button>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => handlePublish(post.id)}
+                        disabled={publishing[post.id]}
+                        id={`btn-publish-${post.id}`}
+                      >
+                        {publishing[post.id] ? <><span className="spinner"></span> Publishing...</> : '🚀 Approve & Publish Now'}
+                      </button>
+                      <a href={`/edit/${post.id}`} className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+                        ✏️ Edit Post
+                      </a>
+                      <button
+                        className="btn btn-ghost"
+                        onClick={() => handleStatusChange(post.id, 'draft')}
+                        id={`btn-revise-${post.id}`}
+                      >
+                        🔄 Back to Draft
+                      </button>
+                    </>
+                  )}
+
+                  {/* Approved / Scheduled actions */}
+                  {post.status === 'approved' && (
+                    <>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => handlePublish(post.id)}
+                        disabled={publishing[post.id]}
+                        id={`btn-publish-approved-${post.id}`}
+                      >
+                        {publishing[post.id] ? <><span className="spinner"></span> Publishing...</> : '🚀 Publish Now'}
+                      </button>
+                      <button
+                        className="btn btn-ghost"
+                        onClick={() => handleStatusChange(post.id, 'pending_approval')}
+                        id={`btn-unapprove-${post.id}`}
+                      >
+                        ↩️ Move to Pending
+                      </button>
+                      <a href={`/edit/${post.id}`} className="btn btn-secondary" style={{ textDecoration: 'none' }}>
+                        ✏️ Edit Post
+                      </a>
+                    </>
+                  )}
+
+                  {/* Published — view only */}
+                  {post.status === 'published' && (
+                    <>
+                      {post.facebook_post_id && (
+                        <a
+                          href={`https://www.facebook.com/${post.facebook_post_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-secondary"
+                          style={{ textDecoration: 'none' }}
+                        >
+                          📘 View on Facebook
+                        </a>
+                      )}
+                      {post.instagram_post_id && (
+                        <a
+                          href={`https://www.instagram.com/p/${post.instagram_post_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-secondary"
+                          style={{ textDecoration: 'none' }}
+                        >
+                          📷 View on Instagram
+                        </a>
+                      )}
+                      <a href={`/edit/${post.id}`} className="btn btn-ghost" style={{ textDecoration: 'none' }}>
+                        👁️ View Details
+                      </a>
+                    </>
+                  )}
+
+                  {/* Delete — always visible */}
                   <button
                     className="btn btn-ghost"
                     onClick={() => {
                       if (confirm('Delete this post?')) {
                         fetch(`/api/content/${post.id}`, { method: 'DELETE' }).then(() => {
                           addToast('Post deleted', 'info');
-                          fetchPosts();
+                          fetchAllTabs();
                         });
                       }
                     }}
