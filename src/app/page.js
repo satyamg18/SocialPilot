@@ -1,40 +1,72 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useToast } from '@/components/Toast';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
   const [allPosts, setAllPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [postFilter, setPostFilter] = useState('unpublished'); // 'unpublished' | 'published'
+  const [postFilter, setPostFilter] = useState('unpublished');
+  const [publishing, setPublishing] = useState({}); // { [postId]: true }
+
+  const addToast = useToast();
+
+  const refreshData = useCallback(async () => {
+    try {
+      const [statsRes, postsRes] = await Promise.all([
+        fetch('/api/stats'),
+        fetch('/api/content'),
+      ]);
+      if (statsRes.ok) setStats(await statsRes.json());
+      if (postsRes.ok) {
+        const postsData = await postsRes.json();
+        const sorted = (postsData.posts || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        setAllPosts(sorted);
+      }
+    } catch (e) {
+      console.error('Failed to load dashboard:', e);
+    }
+  }, []);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [statsRes, postsRes] = await Promise.all([
-          fetch('/api/stats'),
-          fetch('/api/content'),
-        ]);
-
-        if (statsRes.ok) {
-          const statsData = await statsRes.json();
-          setStats(statsData);
-        }
-        if (postsRes.ok) {
-          const postsData = await postsRes.json();
-          // Sort posts by date descending
-          const sorted = (postsData.posts || []).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-          setAllPosts(sorted);
-        }
-      } catch (e) {
-        console.error('Failed to load dashboard:', e);
-      } finally {
-        setLoading(false);
-      }
+    async function init() {
+      await refreshData();
+      setLoading(false);
     }
-    fetchData();
-  }, []);
+    init();
+  }, [refreshData]);
+
+  async function handlePublish(post) {
+    setPublishing(prev => ({ ...prev, [post.id]: true }));
+    try {
+      // Approve first if not yet approved
+      if (post.status !== 'approved') {
+        await fetch(`/api/content/${post.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'approved' }),
+        });
+      }
+      const res = await fetch('/api/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: post.id }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        addToast('Post published successfully! 🚀', 'success');
+        await refreshData();
+      } else {
+        addToast(`Publish failed: ${data.errors?.join(', ') || 'Unknown error'}`, 'error');
+      }
+    } catch (err) {
+      addToast(err.message, 'error');
+    } finally {
+      setPublishing(prev => ({ ...prev, [post.id]: false }));
+    }
+  }
 
   if (loading) {
     return (
@@ -206,8 +238,29 @@ export default function DashboardPage() {
                     </span>
                   )}
 
-                  <div style={{ width: '100%', marginTop: '8px', display: 'flex', justifyContent: 'flex-end' }}>
-                    <a href={`/edit/${post.id}`} className="btn btn-ghost btn-sm" style={{ textDecoration: 'none' }}>✏️ {post.status === 'published' ? 'View' : 'Edit'}</a>
+                  <div style={{ width: '100%', marginTop: '8px', display: 'flex', gap: '8px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                    {post.status !== 'published' ? (
+                      <>
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => handlePublish(post)}
+                          disabled={publishing[post.id]}
+                          id={`btn-dash-publish-${post.id}`}
+                          style={{ fontSize: '0.78rem' }}
+                        >
+                          {publishing[post.id]
+                            ? <><span className="spinner" style={{ width: '12px', height: '12px' }}></span> Publishing...</>
+                            : '🚀 Publish Now'}
+                        </button>
+                        <a href={`/edit/${post.id}`} className="btn btn-ghost btn-sm" style={{ textDecoration: 'none', fontSize: '0.78rem' }}>
+                          ✏️ Edit
+                        </a>
+                      </>
+                    ) : (
+                      <a href={`/edit/${post.id}`} className="btn btn-ghost btn-sm" style={{ textDecoration: 'none', fontSize: '0.78rem' }}>
+                        👁️ View
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>

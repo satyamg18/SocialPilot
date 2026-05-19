@@ -15,11 +15,12 @@ function SettingsContent() {
   // Handle OAuth Redirects
   useEffect(() => {
     const error = searchParams.get('error');
+    const detail = searchParams.get('detail');
     const success = searchParams.get('success');
 
     if (error) {
-      addToast(`Authentication failed: ${error}`, 'error');
-      // Remove query param from URL
+      const msg = detail ? `Auth failed: ${decodeURIComponent(detail)}` : `Authentication failed: ${error}`;
+      addToast(msg, 'error');
       router.replace('/settings');
     } else if (success) {
       addToast('Platform connected successfully!', 'success');
@@ -51,7 +52,7 @@ function SettingsContent() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Settings</h1>
-          <p className="page-subtitle">Manage your platform connections and preferences</p>
+          <p className="page-subtitle">Manage your platform connections</p>
         </div>
       </div>
 
@@ -69,7 +70,7 @@ function SettingsContent() {
                 <div className="text-sm text-muted">
                   {connections.facebook
                     ? `Connected as ${connections.facebookUser || 'page'}`
-                    : 'Not connected — Connect to publish posts to your Facebook Page'}
+                    : 'Not connected — connect to publish posts to your Facebook Page'}
                 </div>
               </div>
             </div>
@@ -98,7 +99,7 @@ function SettingsContent() {
                 <div className="text-sm text-muted">
                   {connections.instagram
                     ? `Connected as ${connections.instagramUser || 'user'}`
-                    : 'Not connected — Connect to publish posts to Instagram'}
+                    : 'Not connected — connect to publish posts to Instagram'}
                 </div>
               </div>
             </div>
@@ -120,26 +121,16 @@ function SettingsContent() {
         </div>
       </div>
 
-      {/* API Configuration */}
+      {/* API Status */}
       <div className="card settings-section">
         <div className="card-body">
-          <h2 className="settings-heading">🔑 API Configuration</h2>
-
-          <div className="settings-info-box">
-            <p className="text-sm" style={{ color: 'var(--accent-primary)', marginBottom: '8px', fontWeight: 600 }}>
-              ℹ️ Environment Variables
-            </p>
-            <p className="text-sm text-muted">
-              API keys are configured via the <code className="settings-code">.env.local</code> file for security.
-              Copy <code className="settings-code">.env.local.example</code> and fill in your keys.
-            </p>
-          </div>
-
+          <h2 className="settings-heading">🔑 API Status</h2>
           <div className="settings-keys-list">
+
             <div className="settings-key-row">
               <div>
                 <div className="text-sm" style={{ fontWeight: 600 }}>GROQ_API_KEY</div>
-                <div className="text-xs text-muted">Groq API for AI text generation (LLaMA 3)</div>
+                <div className="text-xs text-muted">AI text generation via LLaMA 3 (Groq)</div>
               </div>
               <span className={`status-badge ${config.hasGroqKey ? 'approved' : 'draft'}`}>
                 <span className="status-dot"></span>
@@ -149,69 +140,75 @@ function SettingsContent() {
 
             <div className="settings-key-row">
               <div>
-                <div className="text-sm" style={{ fontWeight: 600 }}>N8N_ENABLED</div>
-                <div className="text-xs text-muted">Workflow automation via n8n</div>
-              </div>
-              <span className={`status-badge ${config.n8nEnabled ? 'approved' : 'draft'}`}>
-                <span className="status-dot"></span>
-                {config.n8nEnabled ? 'Enabled' : 'Disabled'}
-              </span>
-            </div>
-
-            <div className="settings-key-row">
-              <div>
                 <div className="text-sm" style={{ fontWeight: 600 }}>FACEBOOK_APP_ID / SECRET</div>
-                <div className="text-xs text-muted">Facebook OAuth credentials</div>
+                <div className="text-xs text-muted">Meta OAuth for Facebook & Instagram</div>
               </div>
               <span className={`status-badge ${config.hasFacebookKeys ? 'approved' : 'draft'}`}>
                 <span className="status-dot"></span>
-                {config.hasFacebookKeys ? 'Configured' : 'Check .Env.Local'}
+                {config.hasFacebookKeys ? 'Configured' : 'Not Set'}
               </span>
             </div>
 
             <div className="settings-key-row">
               <div>
-                <div className="text-sm" style={{ fontWeight: 600 }}>INSTAGRAM_APP_ID / SECRET</div>
-                <div className="text-xs text-muted">Meta/Instagram OAuth credentials</div>
+                <div className="text-sm" style={{ fontWeight: 600 }}>DATABASE_URL</div>
+                <div className="text-xs text-muted">Neon Postgres (production) or SQLite (local)</div>
               </div>
-              <span className={`status-badge ${config.hasInstagramKeys ? 'approved' : 'draft'}`}>
+              <span className="status-badge approved">
                 <span className="status-dot"></span>
-                {config.hasInstagramKeys ? 'Configured' : 'Check .Env.Local'}
+                Auto-detected
               </span>
             </div>
+
           </div>
         </div>
       </div>
 
-      {/* Setup Guide */}
+      {/* Quick Setup Reference */}
       <div className="card">
         <div className="card-body">
-          <h2 className="settings-heading">📖 Setup Guide</h2>
-
+          <h2 className="settings-heading">📖 Quick Setup</h2>
           <div className="settings-guide-list">
+
             <div className="settings-guide-step">
-              <h3 style={{ marginBottom: '8px', color: 'var(--accent-primary)' }}>Step 1: Groq API Key</h3>
+              <h3 style={{ marginBottom: '8px', color: 'var(--accent-primary)' }}>1. Groq API Key</h3>
               <p className="text-sm text-muted">
-                Visit <a href="https://console.groq.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-accent)' }}>Groq Console</a> →
-                Create API Key → Add to <code className="settings-code">.env.local</code> as <code className="settings-code">GROQ_API_KEY</code>
+                Get a free key from{' '}
+                <a href="https://console.groq.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-accent)' }}>
+                  console.groq.com
+                </a>{' '}
+                → add as <code className="settings-code">GROQ_API_KEY</code> in Vercel Environment Variables.
               </p>
             </div>
 
             <div className="settings-guide-step">
-              <h3 style={{ marginBottom: '8px', color: 'var(--facebook-color)' }}>Step 2: Facebook Setup</h3>
-              <p className="text-sm text-muted mb-4">
-                Go to <a href="https://developers.facebook.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-accent)' }}>Meta Developer Portal</a> →
-                Create App → Enable "Facebook Login for Business" → Copy App ID and App Secret to <code className="settings-code">.env.local</code>
+              <h3 style={{ marginBottom: '8px', color: 'var(--facebook-color)' }}>2. Facebook & Instagram Setup</h3>
+              <p className="text-sm text-muted">
+                Go to{' '}
+                <a href="https://developers.facebook.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-accent)' }}>
+                  Meta Developer Portal
+                </a>{' '}
+                → Create App → Add <strong>Facebook Login for Business</strong> → copy <code className="settings-code">App ID</code> and{' '}
+                <code className="settings-code">App Secret</code> → add Valid OAuth Redirect URIs:
               </p>
+              <code className="settings-code" style={{ display: 'block', marginTop: '8px', padding: '8px', fontSize: '0.75rem' }}>
+                https://social-media-agent-nine.vercel.app/api/auth/facebook/callback
+              </code>
+              <code className="settings-code" style={{ display: 'block', marginTop: '4px', padding: '8px', fontSize: '0.75rem' }}>
+                https://social-media-agent-nine.vercel.app/api/auth/instagram/callback
+              </code>
             </div>
 
             <div className="settings-guide-step">
-              <h3 style={{ marginBottom: '8px', color: '#e1306c' }}>Step 3: Instagram Setup</h3>
+              <h3 style={{ marginBottom: '8px', color: '#e1306c' }}>3. Instagram Business Account</h3>
               <p className="text-sm text-muted">
-                Visit <a href="https://developers.facebook.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-accent)' }}>Meta for Developers</a> →
-                Create App → Request <code className="settings-code">instagram_content_publish</code> permission → Get App ID and Secret → Add to <code className="settings-code">.env.local</code>
+                Your Instagram account must be a <strong>Business or Creator account</strong> linked to your Facebook Page in{' '}
+                <a href="https://business.facebook.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-accent)' }}>
+                  Meta Business Suite
+                </a>.
               </p>
             </div>
+
           </div>
         </div>
       </div>

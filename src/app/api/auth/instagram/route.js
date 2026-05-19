@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request) {
   const appId = process.env.INSTAGRAM_APP_ID;
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/instagram/callback`;
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '');
+  const redirectUri = `${baseUrl}/api/auth/instagram/callback`;
 
   if (!appId) {
     return NextResponse.json({ error: 'INSTAGRAM_APP_ID is not configured in .env.local' }, { status: 400 });

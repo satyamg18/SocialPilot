@@ -16,6 +16,7 @@ export default function ApprovePage() {
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState({});
   const [expandedId, setExpandedId] = useState(null);
+  const [rescheduling, setRescheduling] = useState({}); // { [postId]: { open, date, time } }
 
   useEffect(() => {
     fetchAllTabs();
@@ -39,6 +40,42 @@ export default function ApprovePage() {
       console.error('Failed to fetch:', e);
     } finally {
       setLoading(false);
+    }
+  }
+
+  function openReschedule(post) {
+    setRescheduling(prev => ({
+      ...prev,
+      [post.id]: {
+        open: true,
+        date: post.scheduled_date || '',
+        time: post.scheduled_time || '09:00',
+      },
+    }));
+  }
+
+  function closeReschedule(postId) {
+    setRescheduling(prev => ({ ...prev, [postId]: { ...prev[postId], open: false } }));
+  }
+
+  async function handleReschedule(postId) {
+    const { date, time } = rescheduling[postId] || {};
+    if (!date) { addToast('Please pick a date first.', 'error'); return; }
+    try {
+      const res = await fetch(`/api/content/${postId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scheduled_date: date, scheduled_time: time }),
+      });
+      if (res.ok) {
+        addToast(`Rescheduled to ${date} at ${time} ✅`, 'success');
+        closeReschedule(postId);
+        fetchAllTabs();
+      } else {
+        addToast('Failed to reschedule.', 'error');
+      }
+    } catch (err) {
+      addToast(err.message, 'error');
     }
   }
 
@@ -335,26 +372,95 @@ export default function ApprovePage() {
 
                   {/* Approved / Scheduled actions */}
                   {post.status === 'approved' && (
-                    <>
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => handlePublish(post.id)}
-                        disabled={publishing[post.id]}
-                        id={`btn-publish-approved-${post.id}`}
-                      >
-                        {publishing[post.id] ? <><span className="spinner"></span> Publishing...</> : '🚀 Publish Now'}
-                      </button>
-                      <button
-                        className="btn btn-ghost"
-                        onClick={() => handleStatusChange(post.id, 'pending_approval')}
-                        id={`btn-unapprove-${post.id}`}
-                      >
-                        ↩️ Move to Pending
-                      </button>
-                      <a href={`/edit/${post.id}`} className="btn btn-secondary" style={{ textDecoration: 'none' }}>
-                        ✏️ Edit Post
-                      </a>
-                    </>
+                    <div style={{ width: '100%' }}>
+                      {/* Primary action buttons */}
+                      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: rescheduling[post.id]?.open ? '16px' : '0' }}>
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => handlePublish(post.id)}
+                          disabled={publishing[post.id]}
+                          id={`btn-publish-approved-${post.id}`}
+                        >
+                          {publishing[post.id] ? <><span className="spinner"></span> Publishing...</> : '🚀 Publish Now'}
+                        </button>
+                        <button
+                          className="btn btn-secondary"
+                          onClick={() => rescheduling[post.id]?.open ? closeReschedule(post.id) : openReschedule(post)}
+                          id={`btn-reschedule-${post.id}`}
+                        >
+                          📅 {rescheduling[post.id]?.open ? 'Cancel Reschedule' : 'Reschedule'}
+                        </button>
+                        <button
+                          className="btn btn-ghost"
+                          onClick={() => handleStatusChange(post.id, 'pending_approval')}
+                          id={`btn-unapprove-${post.id}`}
+                        >
+                          ↩️ Move to Pending
+                        </button>
+                        <a href={`/edit/${post.id}`} className="btn btn-ghost" style={{ textDecoration: 'none' }}>
+                          ✏️ Edit
+                        </a>
+                      </div>
+
+                      {/* Inline reschedule panel */}
+                      {rescheduling[post.id]?.open && (
+                        <div style={{
+                          background: 'var(--bg-secondary)',
+                          border: '1px solid var(--border-accent)',
+                          borderRadius: 'var(--radius-md)',
+                          padding: '20px',
+                          display: 'flex',
+                          gap: '16px',
+                          flexWrap: 'wrap',
+                          alignItems: 'flex-end',
+                        }}>
+                          <div>
+                            <label className="form-label" style={{ marginBottom: '6px', display: 'block' }}>📅 New Date</label>
+                            <input
+                              type="date"
+                              className="form-input"
+                              value={rescheduling[post.id]?.date || ''}
+                              min={new Date().toISOString().split('T')[0]}
+                              onChange={e => setRescheduling(prev => ({
+                                ...prev,
+                                [post.id]: { ...prev[post.id], date: e.target.value },
+                              }))}
+                              style={{ width: '180px' }}
+                              id={`input-reschedule-date-${post.id}`}
+                            />
+                          </div>
+                          <div>
+                            <label className="form-label" style={{ marginBottom: '6px', display: 'block' }}>🕐 New Time</label>
+                            <input
+                              type="time"
+                              className="form-input"
+                              value={rescheduling[post.id]?.time || '09:00'}
+                              onChange={e => setRescheduling(prev => ({
+                                ...prev,
+                                [post.id]: { ...prev[post.id], time: e.target.value },
+                              }))}
+                              style={{ width: '140px' }}
+                              id={`input-reschedule-time-${post.id}`}
+                            />
+                          </div>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              className="btn btn-success"
+                              onClick={() => handleReschedule(post.id)}
+                              id={`btn-confirm-reschedule-${post.id}`}
+                            >
+                              ✅ Confirm Reschedule
+                            </button>
+                            <button
+                              className="btn btn-ghost"
+                              onClick={() => closeReschedule(post.id)}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
 
                   {/* Published — view only */}
