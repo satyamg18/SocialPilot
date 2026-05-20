@@ -2,7 +2,7 @@
 
 An autonomous, AI-powered social media manager built with Next.js. The agent handles content generation, visual assets, intelligent scheduling, automated publishing, and engagement tracking across **Facebook** and **Instagram**.
 
-**Live Demo:** [https://socialagent.vercel.app](https://socialagent.vercel.app)
+**Live Demo:** [https://socialagent18.vercel.app](https://socialagent18.vercel.app)
 
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
@@ -41,41 +41,34 @@ An autonomous, AI-powered social media manager built with Next.js. The agent han
 
 ## 📁 Project Structure
 
-```
-src/
-├── app/
-│   ├── page.js                  # Dashboard with Published/Unpublished tabs
-│   ├── compose/page.js          # AI post composer (4-step wizard)
-│   ├── approve/page.js          # Approval queue with publish & reschedule
-│   ├── calendar/page.js         # Calendar view of scheduled posts
-│   ├── plan/page.js             # Monthly AI content planner
-│   ├── settings/page.js         # OAuth connections & API key status
-│   ├── edit/[id]/page.js        # Post editor
-│   ├── privacy/page.js          # Privacy Policy (Meta compliance)
-│   ├── data-deletion/page.js    # Data Deletion Instructions (Meta compliance)
-│   └── api/
-│       ├── auth/facebook/       # Facebook OAuth flow (init + callback)
-│       ├── auth/instagram/      # Instagram OAuth flow (init + callback)
-│       ├── generate/text/       # AI text generation endpoint
-│       ├── generate/image/      # AI image generation endpoint
-│       ├── content/             # CRUD for posts
-│       ├── publish/             # Manual publish trigger
-│       ├── plan/                # Monthly plan CRUD
-│       ├── stats/               # Dashboard statistics
-│       └── cron/                # Auto-publish & analytics sync
-├── lib/
-│   ├── ai/
-│   │   ├── text-generator.js    # Groq SDK integration with token logging
-│   │   └── image-generator.js   # Pollinations AI with negative prompts
-│   ├── platforms/
-│   │   ├── facebook.js          # Facebook Graph API (text + image posts)
-│   │   └── instagram.js         # Instagram Graph API (container → publish)
-│   ├── db.js                    # Hybrid SQLite/Postgres data adapter
-│   └── n8n.js                   # n8n webhook client with smart fallbacks
-└── components/
-    ├── Sidebar.js               # Navigation with live connection status
-    └── Toast.js                 # Toast notification system
-```
+All key directory and file links are linked to their absolute paths:
+
+- [src/app/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/page.js) — Dashboard with Published/Unpublished tabs
+- [src/app/compose/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/compose/page.js) — AI post composer (4-step wizard)
+- [src/app/approve/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/approve/page.js) — Approval queue with publish & reschedule
+- [src/app/calendar/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/calendar/page.js) — Calendar view of scheduled posts
+- [src/app/plan/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/plan/page.js) — Monthly AI content planner
+- [src/app/settings/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/settings/page.js) — OAuth connections & API key status
+- [src/app/edit/[id]/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/edit/[id]/page.js) — Post editor
+- [src/app/privacy/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/privacy/page.js) — Privacy Policy (Meta compliance)
+- [src/app/data-deletion/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/data-deletion/page.js) — Data Deletion Instructions (Meta compliance)
+- [src/app/api/auth/facebook/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/auth/facebook/route.js) — Facebook OAuth flow (init + callback)
+- [src/app/api/auth/instagram/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/auth/instagram/route.js) — Instagram OAuth flow (init + callback)
+- [src/app/api/generate/text/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/generate/text/route.js) — AI text generation endpoint
+- [src/app/api/generate/image/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/generate/image/route.js) — AI image generation endpoint
+- [src/app/api/content/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/content/route.js) — CRUD for posts
+- [src/app/api/publish/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/publish/route.js) — Manual publish trigger
+- [src/app/api/plan/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/plan/route.js) — Monthly plan CRUD
+- [src/app/api/stats/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/stats/route.js) — Dashboard statistics
+- [src/app/api/cron/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/cron/route.js) — Auto-publish & analytics sync
+- [src/lib/ai/text-generator.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/ai/text-generator.js) — Groq SDK integration with token logging
+- [src/lib/ai/image-generator.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/ai/image-generator.js) — Pollinations AI with negative prompts
+- [src/lib/platforms/facebook.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/platforms/facebook.js) — Facebook Graph API (text + image posts)
+- [src/lib/platforms/instagram.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/platforms/instagram.js) — Instagram Graph API (container → publish)
+- [src/lib/db.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/db.js) — Hybrid SQLite/Postgres data adapter
+- [src/lib/n8n.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/n8n.js) — n8n webhook client with smart fallbacks
+- [src/components/Sidebar.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/components/Sidebar.js) — Navigation with live connection status
+- [src/components/Toast.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/components/Toast.js) — Toast notification system
 
 ---
 
@@ -97,7 +90,7 @@ npm install
 
 ### 2. Environment Configuration
 
-Create a `.env.local` file in the project root:
+Create a [.env.local](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/.env.local) file in the project root:
 
 ```env
 # AI — Text Generation (Required)
@@ -145,7 +138,7 @@ The agent relies on background tasks to publish scheduled content and sync engag
 
 ### Vercel Cron (Hobby Tier — Daily)
 
-The included `vercel.json` configures two daily cron jobs:
+The included [vercel.json](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/vercel.json) configures two daily cron jobs:
 
 ```json
 {
@@ -164,7 +157,7 @@ The included `vercel.json` configures two daily cron jobs:
 Vercel Hobby only allows daily crons. For more frequent auto-publishing (e.g., every 15 minutes):
 
 1. Sign up at [cron-job.org](https://cron-job.org/) (free).
-2. Create a cron job pointing to `https://your-domain.vercel.app/api/cron`.
+2. Create a cron job pointing to `https://socialagent18.vercel.app/api/cron`.
 3. Set the frequency to every 15 minutes.
 
 ---
@@ -176,7 +169,7 @@ Vercel Hobby only allows daily crons. For more frequent auto-publishing (e.g., e
 3. Create a [Neon Postgres](https://neon.tech/) database and add the connection string as `DATABASE_URL` in Vercel Environment Variables.
 4. Add all required API keys (`GROQ_API_KEY`, `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`, etc.) in Vercel Environment Variables.
 5. Set `N8N_ENABLED=false` in Vercel (n8n runs locally, not on Vercel's serverless infrastructure).
-6. Set `NEXT_PUBLIC_APP_URL` to your production domain **without a trailing slash** (e.g. `https://socialagent.vercel.app`).
+6. Set `NEXT_PUBLIC_APP_URL` to your production domain **without a trailing slash** (e.g. `https://socialagent18.vercel.app`).
 7. Deploy!
 
 ### 🔐 Meta App Setup
@@ -185,8 +178,8 @@ Vercel Hobby only allows daily crons. For more frequent auto-publishing (e.g., e
 2. Copy `App ID` and `App Secret` → add as Vercel env vars.
 3. In the app's **Valid OAuth Redirect URIs**, add:
    ```
-   https://YOUR_DOMAIN/api/auth/facebook/callback
-   https://YOUR_DOMAIN/api/auth/instagram/callback
+   https://socialagent18.vercel.app/api/auth/facebook/callback
+   https://socialagent18.vercel.app/api/auth/instagram/callback
    ```
 4. If the app is owned by a **Business Portfolio**, go to [Business Settings](https://business.facebook.com/settings) → Users → People → assign yourself **Full Control** of the app under **Accounts → Apps**.
 5. For Instagram publishing, your Instagram account must be a **Business or Creator account** linked to your Facebook Page in [Meta Business Suite](https://business.facebook.com/).
