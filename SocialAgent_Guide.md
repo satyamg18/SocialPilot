@@ -43,13 +43,13 @@ src/
 
 ## 🧠 3. The AI Engine
 
-### Text Generation ([text-generator.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/ai/text-generator.js))
+### Text Generation ([text-generator.js](./src/lib/ai/text-generator.js))
 We use the **Groq API**, which provides lightning-fast inference for open-source models. 
 - **Primary Model:** `llama-3.3-70b-versatile`
 - **Fallback Models:** `llama-3.1-8b-instant` and `mixtral-8x7b-32768`. If the primary model hits a rate limit, the system automatically tries the next one.
 - **Platform Splitting:** When asked to write for "both" platforms, the AI includes `=== FACEBOOK ===` and `=== INSTAGRAM ===` headers. Our backend parses these out so the platforms get separate, tailored texts.
 
-### Image Generation ([image-generator.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/ai/image-generator.js))
+### Image Generation ([image-generator.js](./src/lib/ai/image-generator.js))
 We use **Pollinations AI**. It provides high-quality images via simple URL parameters.
 - **Avoiding Text:** AI image generators naturally try to put text on "social media graphics". We use a strong negative prompt (`negative=text, font, letters, typography`) and avoid the word "graphic" in the positive prompt to force clean images.
 
@@ -57,7 +57,7 @@ We use **Pollinations AI**. It provides high-quality images via simple URL param
 
 ## ⚙️ 4. The Publishing Pipeline
 
-This is the most complex part of the app. It's located in [route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/publish/route.js).
+This is the most complex part of the app. It's located in [route.js](./src/app/api/publish/route.js).
 
 **How a post gets to Facebook/Instagram:**
 1. A post ID is sent to `/api/publish`.
@@ -76,7 +76,7 @@ This is the most complex part of the app. It's located in [route.js](file:///C:/
 Because Vercel's free tier only allows "Daily" cron jobs, posts wouldn't publish at their exact scheduled times. 
 
 **The Solution:**
-We rely on **GitHub Actions** ([auto-publish.yml](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/.github/workflows/auto-publish.yml)). 
+We rely on **GitHub Actions** ([auto-publish.yml](./.github/workflows/auto-publish.yml)). 
 1. Every 15 minutes, GitHub runs a tiny script that hits `https://socialagent18.vercel.app/api/cron`.
 2. The cron route checks the database for any `approved` posts where the scheduled time is ≤ the current time.
 3. If it finds one, it loops through and triggers `/api/publish` for each.
@@ -84,7 +84,7 @@ We rely on **GitHub Actions** ([auto-publish.yml](file:///C:/Users/satya/OneDriv
 
 ---
 
-## 🗄️ 6. Database Schema ([db.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/db.js))
+## 🗄️ 6. Database Schema ([db.js](./src/lib/db.js))
 
 The database automatically configures itself on boot. There are two main tables:
 
@@ -114,8 +114,8 @@ To make this app work, you must create an App in the **Meta Developer Portal**.
 
 - **Images have garbled text on them:** The AI generation prompt might be using words like "poster" or "flyer". Try to use simpler visual descriptions without mentioning text.
 - **"Unknown Error" when publishing:** Check your Vercel Logs. Usually, this means your Facebook Page Access Token expired, or your Instagram account isn't properly linked to your Facebook Page in Meta Business Suite.
-- **Posts aren't auto-publishing:** Ensure your GitHub Actions workflow ([auto-publish.yml](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/.github/workflows/auto-publish.yml)) is enabled and running. Also verify `CRON_SECRET` matches between GitHub Secrets and Vercel Env Vars.
-- **OAuth Callback failing on localhost:** Ensure `NEXT_PUBLIC_APP_URL` in [.env.local](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/.env.local) is exactly `http://localhost:3000` with **no trailing slash**.
+- **Posts aren't auto-publishing:** Ensure your GitHub Actions workflow ([auto-publish.yml](./.github/workflows/auto-publish.yml)) is enabled and running. Also verify `CRON_SECRET` matches between GitHub Secrets and Vercel Env Vars.
+- **OAuth Callback failing on localhost:** Ensure `NEXT_PUBLIC_APP_URL` in [.env.local](./.env.local) is exactly `http://localhost:3000` with **no trailing slash**.
 - **"No Facebook Pages found" or Page name not updating:** 
   1. The app caches the Page Name at connection time. To update it (e.g. after renaming your Facebook page), click **Disconnect** on the Settings page, and then click **Connect** again.
   2. If it still says "No Facebook Pages found", verify if your Page is owned by a **Meta Business Portfolio**. The app requires the `business_management` permission scope to see Pages managed inside Business Suite.

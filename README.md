@@ -43,33 +43,33 @@ An autonomous, AI-powered social media manager built with Next.js. The agent han
 
 All key directory and file links are linked to their absolute paths:
 
-- [src/app/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/page.js) — Dashboard with Published/Unpublished tabs
-- [src/app/compose/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/compose/page.js) — AI post composer (4-step wizard)
-- [src/app/approve/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/approve/page.js) — Approval queue with publish & reschedule
-- [src/app/calendar/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/calendar/page.js) — Calendar view of scheduled posts
-- [src/app/plan/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/plan/page.js) — Monthly AI content planner
-- [src/app/settings/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/settings/page.js) — OAuth connections & API key status
-- [src/app/edit/[id]/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/edit/[id]/page.js) — Post editor
-- [src/app/privacy/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/privacy/page.js) — Privacy Policy (Meta compliance)
-- [src/app/data-deletion/page.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/data-deletion/page.js) — Data Deletion Instructions (Meta compliance)
-- [src/app/api/auth/facebook/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/auth/facebook/route.js) — Facebook OAuth flow (init + callback)
-- [src/app/api/auth/instagram/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/auth/instagram/route.js) — Instagram OAuth flow (init + callback)
-- [src/app/api/auth/disconnect/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/auth/disconnect/route.js) — Disconnect Facebook/Instagram connection endpoint
-- [src/app/api/generate/text/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/generate/text/route.js) — AI text generation endpoint
-- [src/app/api/generate/image/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/generate/image/route.js) — AI image generation endpoint
-- [src/app/api/content/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/content/route.js) — CRUD for posts
-- [src/app/api/publish/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/publish/route.js) — Manual publish trigger
-- [src/app/api/plan/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/plan/route.js) — Monthly plan CRUD
-- [src/app/api/stats/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/stats/route.js) — Dashboard statistics
-- [src/app/api/cron/route.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/app/api/cron/route.js) — Auto-publish & analytics sync
-- [src/lib/ai/text-generator.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/ai/text-generator.js) — Groq SDK integration with token logging
-- [src/lib/ai/image-generator.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/ai/image-generator.js) — Pollinations AI with negative prompts
-- [src/lib/platforms/facebook.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/platforms/facebook.js) — Facebook Graph API (text + image posts)
-- [src/lib/platforms/instagram.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/platforms/instagram.js) — Instagram Graph API (container → publish)
-- [src/lib/db.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/db.js) — Hybrid SQLite/Postgres data adapter
-- [src/lib/n8n.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/lib/n8n.js) — n8n webhook client with smart fallbacks
-- [src/components/Sidebar.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/components/Sidebar.js) — Navigation with live connection status
-- [src/components/Toast.js](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/src/components/Toast.js) — Toast notification system
+- [src/app/page.js](./src/app/page.js) — Dashboard with Published/Unpublished tabs
+- [src/app/compose/page.js](./src/app/compose/page.js) — AI post composer (4-step wizard)
+- [src/app/approve/page.js](./src/app/approve/page.js) — Approval queue with publish & reschedule
+- [src/app/calendar/page.js](./src/app/calendar/page.js) — Calendar view of scheduled posts
+- [src/app/plan/page.js](./src/app/plan/page.js) — Monthly AI content planner
+- [src/app/settings/page.js](./src/app/settings/page.js) — OAuth connections & API key status
+- [src/app/edit/[id]/page.js](./src/app/edit/[id]/page.js) — Post editor
+- [src/app/privacy/page.js](./src/app/privacy/page.js) — Privacy Policy (Meta compliance)
+- [src/app/data-deletion/page.js](./src/app/data-deletion/page.js) — Data Deletion Instructions (Meta compliance)
+- [src/app/api/auth/facebook/route.js](./src/app/api/auth/facebook/route.js) — Facebook OAuth flow (init + callback)
+- [src/app/api/auth/instagram/route.js](./src/app/api/auth/instagram/route.js) — Instagram OAuth flow (init + callback)
+- [src/app/api/auth/disconnect/route.js](./src/app/api/auth/disconnect/route.js) — Disconnect Facebook/Instagram connection endpoint
+- [src/app/api/generate/text/route.js](./src/app/api/generate/text/route.js) — AI text generation endpoint
+- [src/app/api/generate/image/route.js](./src/app/api/generate/image/route.js) — AI image generation endpoint
+- [src/app/api/content/route.js](./src/app/api/content/route.js) — CRUD for posts
+- [src/app/api/publish/route.js](./src/app/api/publish/route.js) — Manual publish trigger
+- [src/app/api/plan/route.js](./src/app/api/plan/route.js) — Monthly plan CRUD
+- [src/app/api/stats/route.js](./src/app/api/stats/route.js) — Dashboard statistics
+- [src/app/api/cron/route.js](./src/app/api/cron/route.js) — Auto-publish & analytics sync
+- [src/lib/ai/text-generator.js](./src/lib/ai/text-generator.js) — Groq SDK integration with token logging
+- [src/lib/ai/image-generator.js](./src/lib/ai/image-generator.js) — Pollinations AI with negative prompts
+- [src/lib/platforms/facebook.js](./src/lib/platforms/facebook.js) — Facebook Graph API (text + image posts)
+- [src/lib/platforms/instagram.js](./src/lib/platforms/instagram.js) — Instagram Graph API (container → publish)
+- [src/lib/db.js](./src/lib/db.js) — Hybrid SQLite/Postgres data adapter
+- [src/lib/n8n.js](./src/lib/n8n.js) — n8n webhook client with smart fallbacks
+- [src/components/Sidebar.js](./src/components/Sidebar.js) — Navigation with live connection status
+- [src/components/Toast.js](./src/components/Toast.js) — Toast notification system
 
 ---
 
