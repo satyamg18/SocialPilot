@@ -1,8 +1,8 @@
-# 🤖 SocialPilot - Social Media Agent
+# 🤖 SocialAgent - Social Media Agent
 
 An autonomous, AI-powered social media manager built with Next.js. The agent handles content generation, visual assets, intelligent scheduling, automated publishing, and engagement tracking across **Facebook** and **Instagram**.
 
-**Live Demo:** [https://social-media-agent-nine.vercel.app](https://social-media-agent-nine.vercel.app)
+**Live Demo:** [https://socialagent.vercel.app](https://socialagent.vercel.app)
 
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
@@ -91,7 +91,7 @@ src/
 
 ```bash
 git clone <your-repo-url>
-cd social-media-agent
+cd socialagent
 npm install
 ```
 
@@ -176,7 +176,7 @@ Vercel Hobby only allows daily crons. For more frequent auto-publishing (e.g., e
 3. Create a [Neon Postgres](https://neon.tech/) database and add the connection string as `DATABASE_URL` in Vercel Environment Variables.
 4. Add all required API keys (`GROQ_API_KEY`, `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET`, etc.) in Vercel Environment Variables.
 5. Set `N8N_ENABLED=false` in Vercel (n8n runs locally, not on Vercel's serverless infrastructure).
-6. Set `NEXT_PUBLIC_APP_URL` to your production domain **without a trailing slash** (e.g. `https://social-media-agent-nine.vercel.app`).
+6. Set `NEXT_PUBLIC_APP_URL` to your production domain **without a trailing slash** (e.g. `https://socialagent.vercel.app`).
 7. Deploy!
 
 ### 🔐 Meta App Setup

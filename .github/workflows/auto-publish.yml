@@ -10,7 +10,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger SocialPilot Auto-Publish
+      - name: Trigger SocialAgent Auto-Publish
         run: |
-          curl -X GET "https://social-media-agent-nine.vercel.app/api/cron" \
+          curl -X GET "https://socialagent.vercel.app/api/cron" \
           -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

@@ -42,7 +42,7 @@ export default function Sidebar() {
         <div className="sidebar-logo">
           <div className="sidebar-logo-icon">🚀</div>
           <div>
-            <div className="sidebar-logo-text">SocialPilot</div>
+            <div className="sidebar-logo-text">SocialAgent</div>
             <div className="sidebar-logo-sub">Automation Agent</div>
           </div>
         </div>

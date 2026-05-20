@@ -88,5 +88,5 @@
   },
   "active": false,
   "settings": { "executionOrder": "v1" },
-  "tags": [{ "name": "social-media-agent" }]
+  "tags": [{ "name": "socialagent" }]
 }

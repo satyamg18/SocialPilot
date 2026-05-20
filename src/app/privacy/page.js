@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
           
           <h2 className="text-xl mb-3 mt-6" style={{ fontWeight: 600 }}>1. Introduction</h2>
           <p className="mb-4 text-sm" style={{ lineHeight: '1.6' }}>
-            SocialPilot ("we", "our", or "us") respects your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our social media automation tool.
+            SocialAgent ("we", "our", or "us") respects your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our social media automation tool.
           </p>
 
           <h2 className="text-xl mb-3 mt-6" style={{ fontWeight: 600 }}>2. Information We Collect</h2>
@@ -33,7 +33,7 @@ export default function PrivacyPolicy() {
 
           <h2 className="text-xl mb-3 mt-6" style={{ fontWeight: 600 }}>5. Contact Us</h2>
           <p className="mb-4 text-sm" style={{ lineHeight: '1.6' }}>
-            If you have questions about this Privacy Policy, please contact the administrator of this SocialPilot instance.
+            If you have questions about this Privacy Policy, please contact the administrator of this SocialAgent instance.
           </p>
         </div>
       </div>

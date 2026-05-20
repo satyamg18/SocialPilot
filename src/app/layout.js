@@ -3,7 +3,7 @@ import Sidebar from '@/components/Sidebar';
 import { ToastProvider } from '@/components/Toast';
 
 export const metadata = {
-  title: 'SocialPilot — Social Media Automation Agent',
+  title: 'SocialAgent — Social Media Automation Agent',
   description: 'AI-powered social media automation for Facebook and Instagram. Plan, create, approve, and publish content with intelligent content generation.',
 };
 

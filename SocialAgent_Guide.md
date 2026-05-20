@@ -1,12 +1,12 @@
-# 📚 SocialPilot — Comprehensive Architecture Guide
+# 📚 SocialAgent — Comprehensive Architecture Guide
 
-This document is the "Everything You Need To Know" guide for the SocialPilot project. It explains exactly how the codebase is structured, how the AI generates content, how publishing works, and how to maintain the project.
+This document is the "Everything You Need To Know" guide for the SocialAgent project. It explains exactly how the codebase is structured, how the AI generates content, how publishing works, and how to maintain the project.
 
 ---
 
 ## 🏗️ 1. High-Level Architecture
 
-SocialPilot is a Next.js 16 (App Router) application. It operates on a **3-tier architecture**:
+SocialAgent is a Next.js 16 (App Router) application. It operates on a **3-tier architecture**:
 
 1. **Frontend (React Client Components):** Beautiful UI with Glassmorphism, built with vanilla CSS. It interacts entirely via Next.js API routes.
 2. **Backend (Next.js API Routes):** Serverless functions that handle OAuth, database queries, and AI generation.

@@ -58,7 +58,7 @@
     "executionOrder": "v1"
   },
   "tags": [
-    { "name": "social-media-agent" }
+    { "name": "socialagent" }
   ],
   "meta": {
     "templateCredsSetupCompleted": false
