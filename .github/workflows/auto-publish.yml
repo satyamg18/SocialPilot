@@ -12,5 +12,5 @@ jobs:
     steps:
       - name: Trigger SocialAgent Auto-Publish
         run: |
-          curl -X GET "https://socialagent.vercel.app/api/cron" \
+          curl -X GET "https://socialagent18.vercel.app/api/cron" \
           -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

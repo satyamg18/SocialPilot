@@ -192,10 +192,10 @@ function SettingsContent() {
                 <code className="settings-code">App Secret</code> → add Valid OAuth Redirect URIs:
               </p>
               <code className="settings-code" style={{ display: 'block', marginTop: '8px', padding: '8px', fontSize: '0.75rem' }}>
-                https://socialagent.vercel.app/api/auth/facebook/callback
+                https://socialagent18.vercel.app/api/auth/facebook/callback
               </code>
               <code className="settings-code" style={{ display: 'block', marginTop: '4px', padding: '8px', fontSize: '0.75rem' }}>
-                https://socialagent.vercel.app/api/auth/instagram/callback
+                https://socialagent18.vercel.app/api/auth/instagram/callback
               </code>
             </div>
 
