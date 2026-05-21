@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:all": "npx -y concurrently \"npx -y n8n start\" \"next dev\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

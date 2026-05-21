@@ -17,7 +17,6 @@ export async function GET() {
       },
       config: {
         hasGroqKey: !!process.env.GROQ_API_KEY,
-        n8nEnabled: process.env.N8N_ENABLED !== 'false',
         hasFacebookKeys: !!(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET),
         hasInstagramKeys: !!(process.env.INSTAGRAM_APP_ID && process.env.INSTAGRAM_APP_SECRET),
       },
