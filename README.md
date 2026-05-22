@@ -1,6 +1,6 @@
-# 🤖 SocialAgent - Social Media Agent
+# SocialAgent
 
-An autonomous, AI-powered social media manager built with Next.js. The agent handles content generation, visual assets, intelligent scheduling, automated publishing, and engagement tracking across **Facebook** and **Instagram**.
+An autonomous, AI-powered social media manager built with Next.js. The agent handles text and visual generation, scheduling, automated publishing, and engagement tracking across **Facebook** and **Instagram**.
 
 **Live Demo:** [https://socialagent18.vercel.app](https://socialagent18.vercel.app)
 
@@ -11,20 +11,20 @@ An autonomous, AI-powered social media manager built with Next.js. The agent han
 
 ---
 
-## ✨ Features
+## Features
 
-- **AI Content Engine**: Generate platform-specific written content using **Groq** (LLaMA 3.3 70B) with automatic multi-model fallback (LLaMA 3.1 8B → Mixtral 8x7B).
-- **AI Image Generation**: Create stunning social media visuals via **Pollinations AI** with prompt enhancement and negative-prompt support.
-- **Smart Calendar & Planning**: Let the AI suggest an entire month's worth of content themes, goals, and targets tailored to your audience.
+- **AI Content Engine**: Generates platform-specific (**Facebook** and **Instagram**) written content using **Groq** (LLaMA 3.3 70B) with automatic multi-model fallback (LLaMA 3.1 8B → Mixtral 8x7B).
+- **AI Image Generation**: Creates social media visuals via **Pollinations AI**.
+- **Smart Calendar & Planning**: AI suggests an entire month's worth of content themes, goals, and targets tailored to your audience.
 - **Automated Publishing**: Background cron job auto-publishes approved posts at their scheduled time. Works with Vercel Cron (daily) or external services like [cron-job.org](https://cron-job.org/) for higher frequency.
-- **Platform-Aware Publishing**: When posting to "both" platforms, the AI writes separate Facebook and Instagram versions. The publish engine automatically splits them so each platform gets its own tailored content.
+- **Platform-Aware Publishing**: When the user chooses to post to "both" platforms, the AI writes separate Facebook and Instagram versions. The publish engine automatically splits them so each platform gets its own tailored content.
 - **OAuth 2.0 Security**: Secure OAuth integration to publish on behalf of actual Facebook Pages and Instagram Business Accounts.
-- **Live Engagement Analytics**: A background sync job that pulls real-world Likes, Comments, and Impressions back into your unified dashboard.
+- **Live Engagement Analytics**: On your dashboard, we automatically sync Likes, Comments, and Impressions.
 - **Hybrid Data Layer**: Uses lightweight `better-sqlite3` for fast local development, and **Neon Postgres** in production via `DATABASE_URL`.
 
 ---
 
-## 🛠️ Architecture & Tech Stack
+## Architecture & Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -39,9 +39,10 @@ An autonomous, AI-powered social media manager built with Next.js. The agent han
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
-Below is the directory tree of the key source files. Click on any file or folder to navigate directly to it:
+Below is the directory tree of the key source files.
+  (Click on any file or folder to navigate directly to it):
 
 - [src/](./src/)
   - [app/](./src/app/) — Next.js App Router (Pages and APIs)
@@ -86,7 +87,7 @@ Below is the directory tree of the key source files. Click on any file or folder
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -146,11 +147,11 @@ Navigate to [http://localhost:3000](http://localhost:3000) to view your dashboar
 
 ---
 
-## ⚙️ Cron Jobs & Automation
+## Cron Jobs & Automation
 
 The agent relies on background tasks to publish scheduled content and sync engagement analytics.
 
-### Vercel Cron (Hobby Tier — Daily)
+### Vercel Cron
 
 The included [vercel.json](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20Institution%20of%20Eminence/project/socialagent/vercel.json) configures two daily cron jobs:
 
@@ -168,7 +169,7 @@ The included [vercel.json](file:///C:/Users/satya/OneDrive%20-%20Shiv%20Nadar%20
 
 ### Higher Frequency (Recommended)
 
-Vercel Hobby only allows daily crons. For more frequent auto-publishing (e.g., every 15 minutes):
+Vercel Hobby only allows daily cron jobs. For more frequent auto-publishing (e.g., every 15 minutes):
 
 1. Sign up at [cron-job.org](https://cron-job.org/) (free).
 2. Create a cron job pointing to `https://socialagent18.vercel.app/api/cron`.
@@ -176,7 +177,7 @@ Vercel Hobby only allows daily crons. For more frequent auto-publishing (e.g., e
 
 ---
 
-## ☁️ Deployment (Vercel + Neon)
+## Deployment (Vercel + Neon)
 
 1. Push your code to a GitHub repository.
 2. Import the project into [Vercel](https://vercel.com/).
@@ -186,7 +187,7 @@ Vercel Hobby only allows daily crons. For more frequent auto-publishing (e.g., e
 6. Set `NEXT_PUBLIC_APP_URL` to your production domain **without a trailing slash** (e.g. `https://socialagent18.vercel.app`).
 7. Deploy!
 
-### 🔐 Meta App Setup
+### Meta App Setup
 
 1. Go to [Meta Developer Portal](https://developers.facebook.com/) → Create App → Add **Facebook Login for Business**.
 2. Copy `App ID` and `App Secret` → add as Vercel env vars.
@@ -198,13 +199,13 @@ Vercel Hobby only allows daily crons. For more frequent auto-publishing (e.g., e
 4. If the app is owned by a **Business Portfolio**, go to [Business Settings](https://business.facebook.com/settings) → Users → People → assign yourself **Full Control** of the app under **Accounts → Apps**.
 5. For Instagram publishing, your Instagram account must be a **Business or Creator account** linked to your Facebook Page in [Meta Business Suite](https://business.facebook.com/).
 
-### 🔐 Security Note
+### Security Note
 
 OAuth tokens are stored persistently in the database (`platform_tokens` table) to allow background publishing without manual intervention. **Never commit your `.env.local` file or local `data/*.db` files to version control.**
 
 ---
 
-## 📝 Content Workflow
+## Content Workflow
 
 ```
 1. Compose → Enter a brief idea/gist
@@ -213,7 +214,7 @@ OAuth tokens are stored persistently in the database (`platform_tokens` table) t
 4. Save as Draft or Submit for Approval
 5. Review in Approval Queue → Approve, Reschedule, or Publish Now
 6. Cron auto-publishes scheduled approved posts
-7. Analytics cron syncs engagement metrics back to dashboard
+7. Analytics cron syncs engagement metrics back to the dashboard
 ```
 
 ---
